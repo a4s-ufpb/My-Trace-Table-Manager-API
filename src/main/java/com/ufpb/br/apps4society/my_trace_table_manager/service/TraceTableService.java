@@ -12,15 +12,22 @@ import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.ThemeNo
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.TraceNotFoundException;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotFoundException;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotHavePermissionException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
 
 @Service
 public class TraceTableService {
     private final TraceTableRepository traceTableRepository;
     private final UserRepository userRepository;
     private final ThemeRepository themeRepository;
+    @Value("${app.img-directory}")
+    private String imageDirectory;
 
     public TraceTableService(TraceTableRepository traceTableRepository, UserRepository userRepository, ThemeRepository themeRepository) {
         this.traceTableRepository = traceTableRepository;
@@ -28,14 +35,29 @@ public class TraceTableService {
         this.themeRepository = themeRepository;
     }
 
-    public TraceTableResponse insertTraceTable(TraceTableRequest traceTableRequest, Long userId, Long themeId) {
+    public TraceTableResponse insertTraceTable(
+            TraceTableRequest traceTableRequest,
+            Long userId,
+            Long themeId,
+            MultipartFile imageFile) throws IOException {
+
         User creator = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
         Theme theme = themeRepository.findById(themeId)
                 .orElseThrow(() -> new ThemeNotFoundException("Tema não encontrado"));
 
+        File directory = new File(imageDirectory);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        String imagePath = imageDirectory + imageFile.getOriginalFilename();
+        File destinationFile = new File(imagePath);
+        imageFile.transferTo(destinationFile);
+
         TraceTable traceTable = new TraceTable(traceTableRequest, creator);
+        traceTable.setImgPath(imagePath);
         traceTable.addTheme(theme);
 
         traceTableRepository.save(traceTable);
