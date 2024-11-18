@@ -34,6 +34,8 @@ public class User implements Serializable, UserDetails {
 
     @OneToMany
     List<Theme> themes = new ArrayList<>();
+    @OneToMany
+    List<TraceTable> traceTables = new ArrayList<>();
 
     public User(UserRequest userRequest) {
         this.name = userRequest.name();
