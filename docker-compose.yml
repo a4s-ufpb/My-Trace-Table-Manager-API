@@ -1,0 +1,39 @@
+version: '3.5'
+
+services:
+
+  db:
+    container_name: container-database
+    image: postgres:16
+    restart: always
+    env_file:
+      - dev.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/app/data
+    networks:
+      - trace-network
+
+  quiz-api:
+    container_name: container-api
+    depends_on:
+      - db
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - dev.env
+    ports:
+      - "8080:8080"
+    networks:
+      - trace-network
+
+volumes:
+  db_data: {}
+
+networks:
+  trace-network:
+    name: trace-network
+    driver: bridge
