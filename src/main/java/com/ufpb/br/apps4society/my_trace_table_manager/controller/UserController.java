@@ -71,11 +71,9 @@ public class UserController {
     @GetMapping(value = "/all/{userId}")
     public ResponseEntity<Page<UserResponse>> findAllUsers(@RequestParam(value = "page", defaultValue = "0") Integer page,
                                                            @RequestParam(value = "size", defaultValue = "12") Integer size,
-                                                           @RequestHeader("Authorization") String token,
-                                                           @PathVariable Long userId,
-                                                           @RequestParam(value = "name", defaultValue = "") String name) throws UserNotHavePermissionException {
+                                                           @RequestParam(value = "name", defaultValue = "") String name)  {
         Pageable pageable = PageRequest.of(page,size);
-        return ResponseEntity.ok(userService.findAllUsers(pageable,token, userId, name));
+        return ResponseEntity.ok(userService.findAllUsers(pageable, name));
     }
 
     @Operation(tags = "User", summary = "Remove User", responses ={

@@ -73,13 +73,7 @@ public class UserService {
         userRepository.delete(removeUser);
     }
 
-    public Page<UserResponse> findAllUsers(Pageable pageable, String token, Long userId, String name) throws UserNotHavePermissionException {
-        boolean isAdmin = validateIfUserIsAdmin(token, userId).isAdmin();
-
-        if (!isAdmin){
-            throw new UserNotHavePermissionException("Você não tem permissão para realizar essa funcionalidade");
-        }
-
+    public Page<UserResponse> findAllUsers(Pageable pageable, String name)  {
         Page<User> users;
 
         if (name.isBlank()) {

@@ -18,10 +18,10 @@ public class TraceTable implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String exerciseName;
-    private String pathImg;
-    private String header;
-    private String shownTraceTable;
-    private String expectedTraceTable;
+    private String imgPath;
+    private String [] header;
+    private String [][] shownTraceTable;
+    private String [][] expectedTraceTable;
 
     @ManyToOne
     private User creator;
