@@ -1,0 +1,12 @@
+spring:
+    profiles:
+        active: ${APP_PROFILE:test}
+    output:
+        ansi:
+            enabled: always
+app:
+    version: ${APP_VERSION:v1}
+    secret: ${APP_SECRET:secret}
+springdoc:
+    pathsToMatch:
+        - /v1/**
