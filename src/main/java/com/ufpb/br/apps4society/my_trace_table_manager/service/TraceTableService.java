@@ -12,6 +12,7 @@ import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.ThemeNo
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.TraceNotFoundException;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotFoundException;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotHavePermissionException;
+import com.ufpb.br.apps4society.my_trace_table_manager.util.TableSerializationUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -123,7 +124,7 @@ public class TraceTableService {
         traceTable.setExerciseName(newTraceTable.exerciseName());
         traceTable.setHeader(newTraceTable.header());
         traceTable.setNumberOfSteps(newTraceTable.numberOfSteps());
-        traceTable.setShownTraceTable(newTraceTable.shownTraceTable());
-        traceTable.setExpectedTraceTable(newTraceTable.expectedTraceTable());
+        traceTable.setShownTraceTable(TableSerializationUtil.serializeTable(newTraceTable.shownTraceTable()));
+        traceTable.setExpectedTraceTable(TableSerializationUtil.serializeTable(newTraceTable.expectedTraceTable()));
     }
 }
