@@ -40,26 +40,13 @@ public class TraceTableService {
             MultipartFile image,
             Long userId,
             Long themeId) throws IOException {
-        
+
         User creator = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
         Theme theme = themeRepository.findById(themeId)
                 .orElseThrow(() -> new ThemeNotFoundException("Tema não encontrado"));
-        
-        String imgPath = null;
-        if (image != null && !image.isEmpty()) {
-            File dir = new File(imageDirectory);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
 
-            String fileName = image.getOriginalFilename();
-            String assetsPath = System.getProperty("user.dir").concat(imageDirectory);
-            File destination = new File(assetsPath + fileName);
-
-            image.transferTo(destination);
-            imgPath = assetsPath + fileName;
-        }
+        String imgPath = handleImageUpload(image);
 
         TraceTable traceTable = new TraceTable(traceTableRequest, creator);
         traceTable.setImgPath(imgPath);
@@ -70,6 +57,24 @@ public class TraceTableService {
         themeRepository.save(theme);
 
         return traceTable.entityToResponse();
+    }
+
+    private String handleImageUpload(MultipartFile image) throws IOException {
+        if (image == null || image.isEmpty()) {
+            return null;
+        }
+
+        File dir = new File(imageDirectory);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        String fileName = image.getOriginalFilename();
+        String assetsPath = System.getProperty("user.dir").concat(imageDirectory);
+        File destination = new File(assetsPath + fileName);
+
+        image.transferTo(destination);
+        return assetsPath + fileName;
     }
 
 
