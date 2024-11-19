@@ -13,16 +13,20 @@ import java.util.List;
 
 @Entity(name = "tb_theme")
 @AllArgsConstructor
-@NoArgsConstructor@Data
+@NoArgsConstructor
+@Data
 public class Theme implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private User creator;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "tb_trace_theme",
+            joinColumns = @JoinColumn(name = "theme_id"),
+            inverseJoinColumns = @JoinColumn(name = "trace_id"))
     private List<TraceTable> traceTables = new ArrayList<>();
 
     public Theme(ThemeRequest themeRequest, User creator) {
@@ -32,5 +36,9 @@ public class Theme implements Serializable {
 
     public ThemeResponse entityToResponse() {
         return new ThemeResponse(id, name, creator.entityToResponse());
+    }
+
+    public void addTraceTable(TraceTable traceTable) {
+        this.traceTables.add(traceTable);
     }
 }

@@ -22,23 +22,17 @@ public class TraceTableController {
         this.traceTableService = traceTableService;
     }
 
-    @PostMapping(value = "/{userId}/{themeId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(value = "/{userId}/{themeId}")
     public TraceTableResponse insertTraceTable(
             @RequestBody TraceTableRequest traceTableRequest,
             @PathVariable Long userId,
-            @PathVariable Long themeId,
-            @RequestPart("imageFile") MultipartFile imageFile) throws IOException {
-        return traceTableService.insertTraceTable(traceTableRequest, userId, themeId, imageFile);
+            @PathVariable Long themeId ){
+        return traceTableService.insertTraceTable(traceTableRequest, userId, themeId);
     }
 
     @GetMapping("/user/{userId}")
     public Page<TraceTableResponse> findAllByUser(Pageable pageable, @PathVariable Long userId) {
         return traceTableService.findAllByUser(pageable, userId);
-    }
-
-    @GetMapping("/theme/{themeId}")
-    public Page<TraceTableResponse> findAllByTheme(Pageable pageable, @PathVariable Long themeId) {
-        return traceTableService.findAllByTheme(pageable, themeId);
     }
 
     @DeleteMapping("/{traceId}")

@@ -8,8 +8,8 @@ public record TraceTableResponse(
         String imgPath,
         String [] header,
         Integer numberOfSteps,
-        String [][] shownTraceTable,
-        String [][] expectedTraceTable,
+        String shownTraceTable,
+        String  expectedTraceTable,
         UserResponse creator
 ) {
 }

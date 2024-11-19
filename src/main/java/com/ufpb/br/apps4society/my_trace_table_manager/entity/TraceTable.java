@@ -23,18 +23,17 @@ public class TraceTable implements Serializable {
     private String imgPath;
     private String [] header;
     private Integer numberOfSteps;
-    private String [][] shownTraceTable;
-    private String [][] expectedTraceTable;
+    private String  shownTraceTable;
+    private String  expectedTraceTable;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private User creator;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "traceTables", cascade = CascadeType.ALL)
     private List<Theme> themes = new ArrayList<>();
 
     public TraceTable(TraceTableRequest traceTableRequest, User creator) {
         this.exerciseName = traceTableRequest.exerciseName();
-        this.imgPath = traceTableRequest.imgPath();
         this.header = traceTableRequest.header();
         this.numberOfSteps = traceTableRequest.numberOfSteps();
         this.shownTraceTable = traceTableRequest.shownTraceTable();

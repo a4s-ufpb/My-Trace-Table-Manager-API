@@ -38,8 +38,7 @@ public class TraceTableService {
     public TraceTableResponse insertTraceTable(
             TraceTableRequest traceTableRequest,
             Long userId,
-            Long themeId,
-            MultipartFile imageFile) throws IOException {
+            Long themeId) {
 
         User creator = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
@@ -47,20 +46,12 @@ public class TraceTableService {
         Theme theme = themeRepository.findById(themeId)
                 .orElseThrow(() -> new ThemeNotFoundException("Tema não encontrado"));
 
-        File directory = new File(imageDirectory);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        String imagePath = imageDirectory + imageFile.getOriginalFilename();
-        File destinationFile = new File(imagePath);
-        imageFile.transferTo(destinationFile);
-
         TraceTable traceTable = new TraceTable(traceTableRequest, creator);
-        traceTable.setImgPath(imagePath);
         traceTable.addTheme(theme);
+        theme.addTraceTable(traceTable);
 
         traceTableRepository.save(traceTable);
+        themeRepository.save(theme);
 
         return traceTable.entityToResponse();
     }
@@ -70,15 +61,6 @@ public class TraceTableService {
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
         Page<TraceTable> traceTables = traceTableRepository.findByCreator(pageable, user);
-
-        return traceTables.map(TraceTable::entityToResponse);
-    }
-
-    public Page<TraceTableResponse> findAllByTheme(Pageable pageable, Long themeId) {
-        Theme theme = themeRepository.findById(themeId)
-                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
-
-        Page<TraceTable> traceTables = traceTableRepository.findByTheme(pageable, theme);
 
         return traceTables.map(TraceTable::entityToResponse);
     }
