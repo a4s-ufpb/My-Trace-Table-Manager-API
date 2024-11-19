@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> {
-                    request.requestMatchers("/", "/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**", "/h2/**").permitAll();
+                    request.requestMatchers("/", "/swagger-resources/**", "/swagger-ui/**", "/swagger-ui.html/**", "/v3/api-docs/**", "/h2/**").permitAll();
                     request.requestMatchers(HttpMethod.POST,"/v1/user/**").permitAll();
                     request.requestMatchers(HttpMethod.GET, "/v1/user/all").permitAll();
                     request.requestMatchers(HttpMethod.GET, "/v1/theme").permitAll();
