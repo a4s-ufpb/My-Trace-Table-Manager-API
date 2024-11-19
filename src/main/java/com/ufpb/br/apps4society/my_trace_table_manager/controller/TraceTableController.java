@@ -1,12 +1,12 @@
 package com.ufpb.br.apps4society.my_trace_table_manager.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableRequest;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.TraceTableService;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotHavePermissionException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,10 +24,15 @@ public class TraceTableController {
 
     @PostMapping(value = "/{userId}/{themeId}")
     public TraceTableResponse insertTraceTable(
-            @RequestBody TraceTableRequest traceTableRequest,
+            @RequestPart("traceTableRequest") String traceTableRequestJson,
+            @RequestPart("image") MultipartFile image,
             @PathVariable Long userId,
-            @PathVariable Long themeId ){
-        return traceTableService.insertTraceTable(traceTableRequest, userId, themeId);
+            @PathVariable Long themeId) throws IOException {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        TraceTableRequest traceTableRequest = objectMapper.readValue(traceTableRequestJson, TraceTableRequest.class);
+
+        return traceTableService.insertTraceTable(traceTableRequest, image, userId, themeId);
     }
 
     @GetMapping("/user/{userId}")

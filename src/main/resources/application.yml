@@ -4,10 +4,15 @@ spring:
     output:
         ansi:
             enabled: always
+    servlet:
+        multipart:
+            enabled: true
+            max-file-size: 1MB
+            max-request-size: 1MB
 app:
     version: ${APP_VERSION:v1}
     secret: ${APP_SECRET:secret}
-    img-directory: /dist/
+    img-directory: /src/main/resources/assets/
 springdoc:
     pathsToMatch:
         - /v1/**

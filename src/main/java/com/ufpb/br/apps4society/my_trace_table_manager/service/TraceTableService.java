@@ -37,16 +37,32 @@ public class TraceTableService {
 
     public TraceTableResponse insertTraceTable(
             TraceTableRequest traceTableRequest,
+            MultipartFile image,
             Long userId,
-            Long themeId) {
-
+            Long themeId) throws IOException {
+        
         User creator = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
-
         Theme theme = themeRepository.findById(themeId)
                 .orElseThrow(() -> new ThemeNotFoundException("Tema não encontrado"));
+        
+        String imgPath = null;
+        if (image != null && !image.isEmpty()) {
+            File dir = new File(imageDirectory);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            String fileName = image.getOriginalFilename();
+            String assetsPath = System.getProperty("user.dir").concat(imageDirectory);
+            File destination = new File(assetsPath + fileName);
+
+            image.transferTo(destination);
+            imgPath = assetsPath + fileName;
+        }
 
         TraceTable traceTable = new TraceTable(traceTableRequest, creator);
+        traceTable.setImgPath(imgPath);
         traceTable.addTheme(theme);
         theme.addTraceTable(traceTable);
 
@@ -55,6 +71,7 @@ public class TraceTableService {
 
         return traceTable.entityToResponse();
     }
+
 
     public Page<TraceTableResponse> findAllByUser(Pageable pageable, Long userId) {
         User user = userRepository.findById(userId)
