@@ -8,10 +8,7 @@ import com.ufpb.br.apps4society.my_trace_table_manager.entity.User;
 import com.ufpb.br.apps4society.my_trace_table_manager.repository.ThemeRepository;
 import com.ufpb.br.apps4society.my_trace_table_manager.repository.TraceTableRepository;
 import com.ufpb.br.apps4society.my_trace_table_manager.repository.UserRepository;
-import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.ThemeNotFoundException;
-import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.TraceNotFoundException;
-import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotFoundException;
-import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotHavePermissionException;
+import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.*;
 import com.ufpb.br.apps4society.my_trace_table_manager.util.TableSerializationUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -62,7 +59,7 @@ public class TraceTableService {
 
     private String handleImageUpload(MultipartFile image) throws IOException {
         if (image == null || image.isEmpty()) {
-            return null;
+            throw new TraceTableException("Imagem inválida ou vazia");
         }
 
         File dir = new File(imageDirectory);
