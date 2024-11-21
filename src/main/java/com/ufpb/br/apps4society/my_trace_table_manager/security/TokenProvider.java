@@ -36,7 +36,7 @@ public class TokenProvider {
                     .sign(algorithm)
                     .strip();
         } catch (JWTCreationException e){
-            throw new TokenException(e.getMessage(), e.getCause());
+            throw new TokenException(e.getMessage());
         }
     }
 
@@ -51,7 +51,7 @@ public class TokenProvider {
                     .verify(token)
                     .getSubject();
         } catch (JWTVerificationException e){
-            throw new TokenException(e.getMessage(), e.getCause());
+            throw new TokenException(e.getMessage());
         }
     }
 }

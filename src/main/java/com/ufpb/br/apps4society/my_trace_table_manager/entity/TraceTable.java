@@ -22,11 +22,10 @@ public class TraceTable implements Serializable {
     private Long id;
 
     private String exerciseName;
+
     private String imgPath;
 
     private String[] header;
-
-    private Integer numberOfSteps;
 
     @Lob
     private String shownTraceTable;
@@ -43,7 +42,6 @@ public class TraceTable implements Serializable {
     public TraceTable(TraceTableRequest traceTableRequest, User creator) {
         this.exerciseName = traceTableRequest.exerciseName();
         this.header = traceTableRequest.header();
-        this.numberOfSteps = traceTableRequest.numberOfSteps();
         this.shownTraceTable = TableSerializationUtil.serializeTable(traceTableRequest.shownTraceTable());
         this.expectedTraceTable = TableSerializationUtil.serializeTable(traceTableRequest.expectedTraceTable());
         this.creator = creator;
@@ -55,7 +53,6 @@ public class TraceTable implements Serializable {
                 exerciseName,
                 imgPath,
                 header,
-                numberOfSteps,
                 TableSerializationUtil.deserializeTable(shownTraceTable),
                 TableSerializationUtil.deserializeTable(expectedTraceTable),
                 creator.entityToResponse()

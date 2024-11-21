@@ -9,7 +9,6 @@ public record TraceTableResponse(
         String exerciseName,
         String imgPath,
         String [] header,
-        Integer numberOfSteps,
         List<List<String>> shownTraceTable,
         List<List<String>>  expectedTraceTable,
         UserResponse creator

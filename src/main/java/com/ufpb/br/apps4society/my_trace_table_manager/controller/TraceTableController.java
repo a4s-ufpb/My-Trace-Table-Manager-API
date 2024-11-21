@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
 import java.io.IOException;
 
 @RestController
@@ -59,6 +58,16 @@ public class TraceTableController {
     @GetMapping(value = "/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Page<TraceTableResponse>> findAllByUser(Pageable pageable, @PathVariable Long userId) {
         return ResponseEntity.ok(traceTableService.findAllByUser(pageable, userId));
+    }
+
+    @Operation(tags = "Trace", summary = "Find All Trace Tables By Theme", responses ={
+            @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = TraceTableResponse.class))),
+            @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
+            @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
+    } )
+    @GetMapping(value = "/theme/{themeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Page<TraceTableResponse>> findAllByTheme(Pageable pageable, @PathVariable Long themeId) {
+        return ResponseEntity.ok(traceTableService.findAllByTheme(pageable, themeId));
     }
 
     @Operation(tags = "Trace", summary = "Delete Trace Table", responses ={

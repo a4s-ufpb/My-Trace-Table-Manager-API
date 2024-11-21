@@ -10,12 +10,10 @@ import com.ufpb.br.apps4society.my_trace_table_manager.repository.TraceTableRepo
 import com.ufpb.br.apps4society.my_trace_table_manager.repository.UserRepository;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.*;
 import com.ufpb.br.apps4society.my_trace_table_manager.util.TableSerializationUtil;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -90,6 +88,15 @@ public class TraceTableService {
         return traceTables.map(TraceTable::entityToResponse);
     }
 
+    public Page<TraceTableResponse> findAllByTheme(Pageable pageable, Long themeId) {
+        themeRepository.findById(themeId)
+                .orElseThrow(() -> new UserNotFoundException("Tema não encontrado"));
+
+        Page<TraceTable> traceTables = traceTableRepository.findByThemeId(pageable, themeId);
+
+        return traceTables.map(TraceTable::entityToResponse);
+    }
+
     public void removeTraceTable(Long userId, Long traceId) throws UserNotHavePermissionException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
@@ -125,31 +132,26 @@ public class TraceTableService {
     private void updateData(TraceTableRequest newTraceTable, TraceTable traceTable) {
         traceTable.setExerciseName(newTraceTable.exerciseName());
         traceTable.setHeader(newTraceTable.header());
-        traceTable.setNumberOfSteps(newTraceTable.numberOfSteps());
         traceTable.setShownTraceTable(TableSerializationUtil.serializeTable(newTraceTable.shownTraceTable()));
         traceTable.setExpectedTraceTable(TableSerializationUtil.serializeTable(newTraceTable.expectedTraceTable()));
     }
 
-    private void validateTraceTableRequest(TraceTableRequest request) {
-        if (Objects.isNull(request.exerciseName()) || request.exerciseName().isBlank()) {
+    private void validateTraceTableRequest(TraceTableRequest traceTable) {
+        if (Objects.isNull(traceTable.exerciseName()) || traceTable.exerciseName().isBlank()) {
             throw new IllegalArgumentException("Campo exerciseName não pode ser vazio ou nulo");
         }
-        if (request.exerciseName().length() < 3 || request.exerciseName().length() > 30) {
+        if (traceTable.exerciseName().length() < 3 || traceTable.exerciseName().length() > 30) {
             throw new IllegalArgumentException("Campo exerciseName deve ter entre 3 e 30 caracteres");
         }
-        if (Objects.isNull(request.header()) || request.header().length == 0) {
+        if (Objects.isNull(traceTable.header()) || traceTable.header().length == 0) {
             throw new IllegalArgumentException("O campo header não pode ser nulo");
         }
 
-        if (Objects.isNull(request.numberOfSteps())) {
-            throw new IllegalArgumentException("O campo numberOfSteps não pode ser nulo");
-        }
-
-        if (Objects.isNull(request.shownTraceTable()) || request.shownTraceTable().isEmpty()) {
+        if (Objects.isNull(traceTable.shownTraceTable()) || traceTable.shownTraceTable().isEmpty()) {
             throw new IllegalArgumentException("O campo shownTraceTable não pode ser nulo");
         }
 
-        if (Objects.isNull(request.expectedTraceTable()) || request.expectedTraceTable().isEmpty()) {
+        if (Objects.isNull(traceTable.expectedTraceTable()) || traceTable.expectedTraceTable().isEmpty()) {
             throw new IllegalArgumentException("O campo expectedTraceTable não pode ser nulo");
         }
     }

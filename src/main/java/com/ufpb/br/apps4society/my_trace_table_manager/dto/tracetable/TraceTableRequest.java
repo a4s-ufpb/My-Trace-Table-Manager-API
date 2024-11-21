@@ -12,8 +12,6 @@ public record TraceTableRequest(
          String exerciseName,
          @NotNull(message = "O campo header não pode ser nulo")
          String [] header,
-         @NotNull(message = "O campo numberOfSteps não pode ser nulo")
-         Integer numberOfSteps,
         @NotNull(message = "O campo shownTraceTable não pode ser nulo")
          List<List<String>> shownTraceTable,
         @NotNull(message = "O campo expectedTraceTable não pode ser nulo")
