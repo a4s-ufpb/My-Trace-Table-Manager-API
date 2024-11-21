@@ -68,7 +68,7 @@ public class UserController {
             @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
             @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
     } )
-    @GetMapping
+    @GetMapping(value = "/all")
     public ResponseEntity<Page<UserResponse>> findAllUsers(@RequestParam(value = "page", defaultValue = "0") Integer page,
                                                            @RequestParam(value = "size", defaultValue = "12") Integer size,
                                                            @RequestParam(value = "name", defaultValue = "") String name)  {
