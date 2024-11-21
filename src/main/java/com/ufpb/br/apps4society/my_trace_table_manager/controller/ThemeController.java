@@ -11,9 +11,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,10 +36,10 @@ public class ThemeController {
             @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
     } )
     @PostMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ThemeResponse insertTheme(
-            @RequestBody ThemeRequest themeRequest,
+    public ResponseEntity<ThemeResponse> insertTheme(
+            @RequestBody @Valid ThemeRequest themeRequest,
             @PathVariable Long userId) {
-        return themeService.insertTheme(themeRequest, userId);
+        return ResponseEntity.status(201).body(themeService.insertTheme(themeRequest, userId));
     }
 
     @Operation(tags = "Theme", summary = "Find All Themes", responses ={
@@ -46,8 +48,8 @@ public class ThemeController {
             @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
     } )
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public Page<ThemeResponse> findAllThemes(Pageable pageable) {
-        return themeService.findAllThemes(pageable);
+    public ResponseEntity<Page<ThemeResponse>> findAllThemes(Pageable pageable) {
+        return ResponseEntity.ok(themeService.findAllThemes(pageable));
     }
 
     @Operation(tags = "Theme", summary = "Find Themes By User", responses ={
@@ -56,10 +58,10 @@ public class ThemeController {
             @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content())
     } )
     @GetMapping(value = "/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Page<ThemeResponse> findThemesByUser(
+    public ResponseEntity<Page<ThemeResponse>> findThemesByUser(
             Pageable pageable,
             @PathVariable Long userId) {
-        return themeService.findThemesByUser(pageable, userId);
+        return ResponseEntity.ok(themeService.findThemesByUser(pageable, userId));
     }
 
     @Operation(tags = "Theme", summary = "Delete Theme", responses ={
@@ -68,11 +70,12 @@ public class ThemeController {
             @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
             @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
     } )
-    @DeleteMapping("/{themeId}")
-    public void removeTheme(
+    @DeleteMapping("/{themeId}/{userId}")
+    public ResponseEntity<Void> removeTheme(
             @PathVariable Long themeId,
-            @RequestParam Long userId) throws UserNotHavePermissionException {
+            @PathVariable Long userId) throws UserNotHavePermissionException {
         themeService.removeTheme(themeId, userId);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(tags = "Theme", summary = "Update Theme", responses ={
@@ -83,11 +86,11 @@ public class ThemeController {
             @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
     } )
     @PutMapping(value = "/{themeId}/{userId}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ThemeResponse updateTheme(
-            @RequestBody ThemeRequest themeRequest,
+    public ResponseEntity<ThemeResponse> updateTheme(
+            @RequestBody @Valid ThemeRequest themeRequest,
             @PathVariable Long themeId,
             @PathVariable Long userId) throws UserNotHavePermissionException {
-        return themeService.updateTheme(themeRequest, themeId, userId);
+        return ResponseEntity.ok(themeService.updateTheme(themeRequest, themeId, userId));
     }
 }
 

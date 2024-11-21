@@ -10,9 +10,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,8 +38,8 @@ public class TraceTableController {
             @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
             @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
     } )
-    @PostMapping(value = "/{userId}/{themeId}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public TraceTableResponse insertTraceTable(
+    @PostMapping(value = "/{userId}/{themeId}")
+    public ResponseEntity<TraceTableResponse> insertTraceTable(
             @RequestPart("traceTableRequest") String traceTableRequestJson,
             @RequestPart("image") MultipartFile image,
             @PathVariable Long userId,
@@ -46,7 +48,7 @@ public class TraceTableController {
         ObjectMapper objectMapper = new ObjectMapper();
         TraceTableRequest traceTableRequest = objectMapper.readValue(traceTableRequestJson, TraceTableRequest.class);
 
-        return traceTableService.insertTraceTable(traceTableRequest, image, userId, themeId);
+        return ResponseEntity.status(201).body(traceTableService.insertTraceTable(traceTableRequest, image, userId, themeId));
     }
 
     @Operation(tags = "Trace", summary = "Find All Trace Tables By User", responses ={
@@ -55,8 +57,8 @@ public class TraceTableController {
             @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
     } )
     @GetMapping(value = "/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Page<TraceTableResponse> findAllByUser(Pageable pageable, @PathVariable Long userId) {
-        return traceTableService.findAllByUser(pageable, userId);
+    public ResponseEntity<Page<TraceTableResponse>> findAllByUser(Pageable pageable, @PathVariable Long userId) {
+        return ResponseEntity.ok(traceTableService.findAllByUser(pageable, userId));
     }
 
     @Operation(tags = "Trace", summary = "Delete Trace Table", responses ={
@@ -65,11 +67,12 @@ public class TraceTableController {
             @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content()),
             @ApiResponse(description = "Not Found", responseCode = "404", content = @Content())
     } )
-    @DeleteMapping("/{traceId}")
-    public void removeTraceTable(
+    @DeleteMapping("/{traceId}/{userId}")
+    public ResponseEntity<Void> removeTraceTable(
             @PathVariable Long traceId,
-            @RequestParam("userId") Long userId) throws UserNotHavePermissionException {
+            @PathVariable Long userId) throws UserNotHavePermissionException {
         traceTableService.removeTraceTable(userId, traceId);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(tags = "Trace", summary = "Update Trace Table", responses ={
@@ -80,10 +83,10 @@ public class TraceTableController {
             @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content())
     } )
     @PutMapping(value = "/{traceId}/{userId}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public TraceTableResponse updateTraceTable(
-            @RequestBody TraceTableRequest traceTableRequest,
+    public ResponseEntity<TraceTableResponse> updateTraceTable(
+            @RequestBody @Valid TraceTableRequest traceTableRequest,
             @PathVariable Long traceId,
-            @PathVariable("userId") Long userId) throws UserNotHavePermissionException {
-        return traceTableService.updateTraceTable(traceTableRequest, traceId, userId);
+            @PathVariable Long userId) throws UserNotHavePermissionException {
+        return ResponseEntity.ok(traceTableService.updateTraceTable(traceTableRequest, traceId, userId));
     }
 }

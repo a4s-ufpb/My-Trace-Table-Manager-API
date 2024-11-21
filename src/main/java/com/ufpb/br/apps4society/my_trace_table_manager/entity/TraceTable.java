@@ -24,7 +24,6 @@ public class TraceTable implements Serializable {
     private String exerciseName;
     private String imgPath;
 
-    @ElementCollection
     private String[] header;
 
     private Integer numberOfSteps;
