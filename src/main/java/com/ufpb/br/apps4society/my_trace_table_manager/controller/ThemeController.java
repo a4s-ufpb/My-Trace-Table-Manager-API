@@ -63,7 +63,7 @@ public class ThemeController {
     }
 
     @Operation(tags = "Theme", summary = "Delete Theme", responses ={
-            @ApiResponse(description = "No Content", responseCode = "204", content = @Content(schema = @Schema(implementation = ThemeResponse.class))),
+            @ApiResponse(description = "No Content", responseCode = "204", content = @Content()),
             @ApiResponse(description = "Not Found", responseCode = "404", content = @Content()),
             @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
             @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
