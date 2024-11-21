@@ -15,7 +15,7 @@ services:
     networks:
       - trace-network
 
-  quiz-api:
+  trace-api:
     container_name: container-api
     depends_on:
       - db
