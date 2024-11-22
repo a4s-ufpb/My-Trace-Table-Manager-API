@@ -10,6 +10,5 @@ import org.springframework.data.repository.query.Param;
 
 public interface TraceTableRepository extends JpaRepository<TraceTable, Long> {
     Page<TraceTable> findByCreator(Pageable pageable, User creator);
-    @Query("SELECT t FROM tb_trace_table t JOIN t.themes theme WHERE theme.id = :themeId")
     Page<TraceTable> findByThemeId(Pageable pageable, @Param("themeId") Long themeId);
 }

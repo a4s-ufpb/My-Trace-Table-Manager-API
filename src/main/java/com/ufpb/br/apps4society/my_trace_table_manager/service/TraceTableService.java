@@ -49,9 +49,8 @@ public class TraceTableService {
 
         String imgPath = handleImageUpload(image);
 
-        TraceTable traceTable = new TraceTable(traceTableRequest, creator);
+        TraceTable traceTable = new TraceTable(traceTableRequest, creator, theme);
         traceTable.setImgPath(imgPath);
-        traceTable.addTheme(theme);
         theme.addTraceTable(traceTable);
 
         traceTableRepository.save(traceTable);
@@ -133,7 +132,7 @@ public class TraceTableService {
 
     private void updateData(TraceTableRequest newTraceTable, TraceTable traceTable) {
         traceTable.setExerciseName(newTraceTable.exerciseName());
-        traceTable.setHeader(newTraceTable.header());
+        traceTable.setHeader(TableSerializationUtil.serializeHeader(newTraceTable.header()));
         traceTable.setShownTraceTable(TableSerializationUtil.serializeTable(newTraceTable.shownTraceTable()));
         traceTable.setExpectedTraceTable(TableSerializationUtil.serializeTable(newTraceTable.expectedTraceTable()));
     }
@@ -145,7 +144,7 @@ public class TraceTableService {
         if (traceTable.exerciseName().length() < 3 || traceTable.exerciseName().length() > 30) {
             throw new IllegalArgumentException("Campo exerciseName deve ter entre 3 e 30 caracteres");
         }
-        if (Objects.isNull(traceTable.header()) || traceTable.header().length == 0) {
+        if (Objects.isNull(traceTable.header()) || traceTable.header().isEmpty()) {
             throw new IllegalArgumentException("O campo header não pode ser nulo");
         }
 

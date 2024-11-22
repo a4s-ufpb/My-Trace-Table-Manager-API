@@ -25,5 +25,21 @@ public class TableSerializationUtil {
             throw new TraceTableException("Erro ao desserializar a tabela");
         }
     }
+
+    public static String serializeHeader(List<String> header) {
+        try {
+            return objectMapper.writeValueAsString(header);
+        } catch (JsonProcessingException e) {
+            throw new TraceTableException("Erro ao serializar a tabela");
+        }
+    }
+
+    public static List<String> deserializeHeader(String header) {
+        try {
+            return objectMapper.readValue(header, List.class);
+        } catch (JsonProcessingException e) {
+            throw new TraceTableException("Erro ao desserializar a tabela");
+        }
+    }
 }
 

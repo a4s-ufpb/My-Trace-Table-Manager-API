@@ -23,10 +23,7 @@ public class Theme implements Serializable {
     @ManyToOne(cascade = CascadeType.PERSIST)
     private User creator;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "tb_trace_theme",
-            joinColumns = @JoinColumn(name = "theme_id"),
-            inverseJoinColumns = @JoinColumn(name = "trace_id"))
+    @OneToMany(mappedBy = "theme", cascade = CascadeType.REMOVE)
     private List<TraceTable> traceTables = new ArrayList<>();
 
     public Theme(ThemeRequest themeRequest, User creator) {

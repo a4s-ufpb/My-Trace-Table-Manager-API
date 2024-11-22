@@ -25,7 +25,8 @@ public class TraceTable implements Serializable {
 
     private String imgPath;
 
-    private String[] header;
+    @Lob
+    private String header;
 
     @Lob
     private String shownTraceTable;
@@ -36,15 +37,16 @@ public class TraceTable implements Serializable {
     @ManyToOne(cascade = CascadeType.PERSIST)
     private User creator;
 
-    @ManyToMany(mappedBy = "traceTables", cascade = CascadeType.PERSIST)
-    private List<Theme> themes = new ArrayList<>();
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    private Theme theme;
 
-    public TraceTable(TraceTableRequest traceTableRequest, User creator) {
+    public TraceTable(TraceTableRequest traceTableRequest, User creator, Theme theme) {
         this.exerciseName = traceTableRequest.exerciseName();
-        this.header = traceTableRequest.header();
+        this.header = TableSerializationUtil.serializeHeader(traceTableRequest.header());
         this.shownTraceTable = TableSerializationUtil.serializeTable(traceTableRequest.shownTraceTable());
         this.expectedTraceTable = TableSerializationUtil.serializeTable(traceTableRequest.expectedTraceTable());
         this.creator = creator;
+        this.theme = theme;
     }
 
     public TraceTableResponse entityToResponse() {
@@ -52,16 +54,10 @@ public class TraceTable implements Serializable {
                 id,
                 exerciseName,
                 imgPath,
-                header,
+                TableSerializationUtil.deserializeHeader(header),
                 TableSerializationUtil.deserializeTable(shownTraceTable),
                 TableSerializationUtil.deserializeTable(expectedTraceTable),
                 creator.entityToResponse()
         );
-    }
-
-    public void addTheme(Theme theme) {
-        if (!themes.contains(theme)) {
-            themes.add(theme);
-        }
     }
 }

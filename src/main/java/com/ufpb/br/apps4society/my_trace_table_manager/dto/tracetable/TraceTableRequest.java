@@ -11,7 +11,7 @@ public record TraceTableRequest(
         @Size(min = 3, max = 30, message = "Número de caracteres inválido")
          String exerciseName,
          @NotNull(message = "O campo header não pode ser nulo")
-         String [] header,
+         List<String> header,
         @NotNull(message = "O campo shownTraceTable não pode ser nulo")
          List<List<String>> shownTraceTable,
         @NotNull(message = "O campo expectedTraceTable não pode ser nulo")
