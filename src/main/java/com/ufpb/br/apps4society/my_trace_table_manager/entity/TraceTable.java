@@ -36,7 +36,7 @@ public class TraceTable implements Serializable {
     @ManyToOne(cascade = CascadeType.PERSIST)
     private User creator;
 
-    @ManyToMany(mappedBy = "traceTables", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "traceTables", cascade = CascadeType.PERSIST)
     private List<Theme> themes = new ArrayList<>();
 
     public TraceTable(TraceTableRequest traceTableRequest, User creator) {

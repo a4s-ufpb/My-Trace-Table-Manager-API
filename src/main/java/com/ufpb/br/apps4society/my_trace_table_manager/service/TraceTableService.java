@@ -65,13 +65,15 @@ public class TraceTableService {
             throw new TraceTableException("Imagem inválida ou vazia");
         }
 
-        File dir = new File(imageDirectory);
+        String assetsPath = System.getProperty("user.dir").concat(imageDirectory);
+
+        File dir = new File(assetsPath);
         if (!dir.exists()) {
             dir.mkdirs();
         }
 
         String fileName = image.getOriginalFilename();
-        String assetsPath = System.getProperty("user.dir").concat(imageDirectory);
+
         File destination = new File(assetsPath + fileName);
 
         image.transferTo(destination);
