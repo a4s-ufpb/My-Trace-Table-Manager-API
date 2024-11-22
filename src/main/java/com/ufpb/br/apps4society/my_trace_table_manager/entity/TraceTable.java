@@ -25,15 +25,12 @@ public class TraceTable implements Serializable {
 
     private String imgPath;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String header;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String shownTraceTable;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String expectedTraceTable;
 
