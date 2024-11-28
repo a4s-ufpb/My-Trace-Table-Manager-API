@@ -12,7 +12,7 @@ spring:
 app:
     version: ${APP_VERSION:v1}
     secret: ${APP_SECRET:secret}
-    img-directory: /src/main/resources/assets/
+    img-directory: /app/assets/
 springdoc:
     pathsToMatch:
         - /v1/**

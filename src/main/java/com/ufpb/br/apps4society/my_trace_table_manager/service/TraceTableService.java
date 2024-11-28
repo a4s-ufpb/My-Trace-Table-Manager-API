@@ -64,20 +64,20 @@ public class TraceTableService {
             throw new TraceTableException("Imagem inválida ou vazia");
         }
 
-        String assetsPath = System.getProperty("user.dir").concat(imageDirectory);
-
-        File dir = new File(assetsPath);
+        File dir = new File(imageDirectory);
         if (!dir.exists()) {
             dir.mkdirs();
         }
 
         String fileName = image.getOriginalFilename();
 
-        File destination = new File(assetsPath + fileName);
+        File destination = new File(imageDirectory + fileName);
 
         image.transferTo(destination);
-        return assetsPath + fileName;
+
+        return "/assets/" + fileName;
     }
+
 
 
     public Page<TraceTableResponse> findAllByUser(Pageable pageable, Long userId) {
