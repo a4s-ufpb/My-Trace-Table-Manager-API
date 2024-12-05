@@ -69,7 +69,7 @@ public class TraceTableService {
             dir.mkdirs();
         }
 
-        String fileName = image.getOriginalFilename();
+        String fileName = System.currentTimeMillis() + image.getOriginalFilename();
 
         File destination = new File(imageDirectory + fileName);
 

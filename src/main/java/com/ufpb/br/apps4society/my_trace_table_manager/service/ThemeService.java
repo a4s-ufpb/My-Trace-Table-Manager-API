@@ -48,6 +48,13 @@ public class ThemeService {
         return themes.map(Theme::entityToResponse);
     }
 
+    public ThemeResponse findById(Long themeId) {
+        return themeRepository
+                .findById(themeId)
+                .orElseThrow(() -> new ThemeNotFoundException("Tema não encontrado!"))
+                .entityToResponse();
+    }
+
     public void removeTheme(Long themeId, Long userId) throws UserNotHavePermissionException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
