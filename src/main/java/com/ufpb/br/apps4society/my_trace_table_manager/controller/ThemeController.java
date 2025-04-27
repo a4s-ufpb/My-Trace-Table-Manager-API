@@ -64,6 +64,18 @@ public class ThemeController {
         return ResponseEntity.ok(themeService.findThemesByUser(pageable, userId));
     }
 
+    @Operation(tags = "Theme", summary = "Find All Themes By Trace Table", responses ={
+            @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = ThemeResponse.class))),
+            @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
+            @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
+    } )
+    @GetMapping(value = "/trace/{traceId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Page<ThemeResponse>> findAllThemesByTraceTable(
+            Pageable pageable,
+            @PathVariable Long traceId) {
+        return ResponseEntity.ok(themeService.findAllThemesByTraceTable(pageable, traceId));
+    }
+
     @Operation(tags = "Theme", summary = "Delete Theme", responses ={
             @ApiResponse(description = "No Content", responseCode = "204", content = @Content()),
             @ApiResponse(description = "Not Found", responseCode = "404", content = @Content()),

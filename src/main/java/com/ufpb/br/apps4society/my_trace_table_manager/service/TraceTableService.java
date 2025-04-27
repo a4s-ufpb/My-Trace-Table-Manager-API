@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -38,23 +39,23 @@ public class TraceTableService {
             TraceTableRequest traceTableRequest,
             MultipartFile image,
             Long userId,
-            Long themeId) throws IOException {
+            List<Long> themesIds) throws IOException {
 
         validateTraceTableRequest(traceTableRequest);
 
         User creator = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
-        Theme theme = themeRepository.findById(themeId)
-                .orElseThrow(() -> new ThemeNotFoundException("Tema não encontrado"));
+        List<Theme> themes = themeRepository.findAllById(themesIds);
+        if (themes.isEmpty()) {
+            throw new ThemeNotFoundException("Nenhum tema encontrado para os IDs fornecidos");
+        }
 
         String imgPath = handleImageUpload(image);
 
-        TraceTable traceTable = new TraceTable(traceTableRequest, creator, theme);
+        TraceTable traceTable = new TraceTable(traceTableRequest, creator, themes);
         traceTable.setImgPath(imgPath);
-        theme.addTraceTable(traceTable);
 
         traceTableRepository.save(traceTable);
-        themeRepository.save(theme);
 
         return traceTable.entityToResponse();
     }
@@ -93,7 +94,7 @@ public class TraceTableService {
         themeRepository.findById(themeId)
                 .orElseThrow(() -> new UserNotFoundException("Tema não encontrado"));
 
-        Page<TraceTable> traceTables = traceTableRepository.findByThemeId(pageable, themeId);
+        Page<TraceTable> traceTables = traceTableRepository.findByThemes_Id(pageable, themeId);
 
         return traceTables.map(TraceTable::entityToResponse);
     }
@@ -112,7 +113,7 @@ public class TraceTableService {
         traceTableRepository.delete(traceTable);
     }
 
-    public TraceTableResponse updateTraceTable(TraceTableRequest newTraceTable,  Long traceId, Long userId) throws UserNotHavePermissionException {
+    public TraceTableResponse updateTraceTable(TraceTableRequest newTraceTable,  Long traceId, Long userId, List<Long> themesIds) throws UserNotHavePermissionException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
@@ -124,6 +125,11 @@ public class TraceTableService {
         }
 
         updateData(newTraceTable, traceTable);
+
+        if (themesIds != null && !themesIds.isEmpty()) {
+            List<Theme> themes = themeRepository.findAllById(themesIds);
+            traceTable.setThemes(themes);
+        }
 
         traceTableRepository.save(traceTable);
 

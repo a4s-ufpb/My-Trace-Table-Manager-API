@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/trace")
@@ -37,17 +38,17 @@ public class TraceTableController {
             @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
             @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
     } )
-    @PostMapping(value = "/{userId}/{themeId}")
+    @PostMapping(value = "/{userId}")
     public ResponseEntity<TraceTableResponse> insertTraceTable(
             @RequestPart("traceTableRequest") String traceTableRequestJson,
             @RequestPart("image") MultipartFile image,
             @PathVariable Long userId,
-            @PathVariable Long themeId) throws IOException {
+            @RequestParam List<Long> themesIds) throws IOException {
 
         ObjectMapper objectMapper = new ObjectMapper();
         TraceTableRequest traceTableRequest = objectMapper.readValue(traceTableRequestJson, TraceTableRequest.class);
 
-        return ResponseEntity.status(201).body(traceTableService.insertTraceTable(traceTableRequest, image, userId, themeId));
+        return ResponseEntity.status(201).body(traceTableService.insertTraceTable(traceTableRequest, image, userId, themesIds));
     }
 
     @Operation(tags = "Trace", summary = "Find All Trace Tables By User", responses ={
@@ -95,7 +96,8 @@ public class TraceTableController {
     public ResponseEntity<TraceTableResponse> updateTraceTable(
             @RequestBody @Valid TraceTableRequest traceTableRequest,
             @PathVariable Long traceId,
-            @PathVariable Long userId) throws UserNotHavePermissionException {
-        return ResponseEntity.ok(traceTableService.updateTraceTable(traceTableRequest, traceId, userId));
+            @PathVariable Long userId,
+            @RequestParam(required = false) List<Long> themesIds) throws UserNotHavePermissionException {
+        return ResponseEntity.ok(traceTableService.updateTraceTable(traceTableRequest, traceId, userId, themesIds));
     }
 }

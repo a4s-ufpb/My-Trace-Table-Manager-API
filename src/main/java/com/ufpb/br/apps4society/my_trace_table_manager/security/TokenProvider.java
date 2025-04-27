@@ -20,6 +20,7 @@ public class TokenProvider {
     @Value("${app.secret}")
     private String secret;
     private Algorithm algorithm;
+    private final long EXPIRATION_TIME_IN_SECONDS = 3600;
 
     @PostConstruct
     public void setUp(){
@@ -41,7 +42,7 @@ public class TokenProvider {
     }
 
     private Instant expirationToken() {
-        return LocalDateTime.now().plusHours(1).toInstant(ZoneOffset.of("-03:00"));
+        return LocalDateTime.now().plusSeconds(EXPIRATION_TIME_IN_SECONDS).toInstant(ZoneOffset.of("-03:00"));
     }
 
     public String getSubjectByToken(String token){
@@ -53,5 +54,9 @@ public class TokenProvider {
         } catch (JWTVerificationException e){
             throw new TokenException(e.getMessage());
         }
+    }
+
+    public long getExpirationTimeInSeconds() {
+        return EXPIRATION_TIME_IN_SECONDS;
     }
 }

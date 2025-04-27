@@ -53,7 +53,8 @@ public class UserService {
         UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(userLogin.email(), userLogin.password());
         Authentication auth = authenticationManager.authenticate(user);
         String token = tokenProvider.generateToken((User) auth.getPrincipal());
-        return new TokenResponse(token);
+        long expiresIn = tokenProvider.getExpirationTimeInSeconds();
+        return new TokenResponse(token, expiresIn);
     }
 
     public UserResponse findUser(String token) {

@@ -10,4 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ThemeRepository extends JpaRepository<Theme, Long> {
     Page<Theme> findByCreator(Pageable pageable, User creator);
+    Page<Theme> findByTraceTables_Id(Pageable pageable, Long traceTableId);
 }

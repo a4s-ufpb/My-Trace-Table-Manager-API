@@ -23,7 +23,7 @@ public class Theme implements Serializable {
     @ManyToOne(cascade = CascadeType.PERSIST)
     private User creator;
 
-    @OneToMany(mappedBy = "theme", cascade = CascadeType.REMOVE)
+    @ManyToMany(mappedBy = "themes")
     private List<TraceTable> traceTables = new ArrayList<>();
 
     public Theme(ThemeRequest themeRequest, User creator) {

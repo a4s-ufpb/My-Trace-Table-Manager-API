@@ -89,7 +89,7 @@ public class User implements Serializable, UserDetails {
     }
 
     public UserResponse entityToResponse(){
-        return new UserResponse(id,name,email);
+        return new UserResponse(id,name,email,role.getRole());
     }
 
     public boolean userNotHavePermission(User user){
