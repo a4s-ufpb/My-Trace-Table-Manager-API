@@ -41,7 +41,7 @@ public class User implements Serializable, UserDetails {
         this.name = userRequest.name();
         this.email = userRequest.email();
         this.password = userRequest.password();
-        this.role = Role.USER;
+        this.role = userRequest.role();
     }
 
     @Override
