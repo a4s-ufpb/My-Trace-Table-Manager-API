@@ -104,6 +104,11 @@ public class UserService {
 
     private void updateData(User user, UserUpdate userUpdate) {
         user.setName(userUpdate.name());
+        user.setEmail(userUpdate.email());
+        user.setRole(userUpdate.role());
+        if (userUpdate.password() != null && !userUpdate.password().isBlank()){
+            user.setPassword(passwordEncoder.encode(userUpdate.password()));
+        }
     }
 
     public User findUserByToken(String token) {
