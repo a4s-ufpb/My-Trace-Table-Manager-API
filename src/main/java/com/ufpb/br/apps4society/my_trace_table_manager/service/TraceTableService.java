@@ -26,13 +26,15 @@ public class TraceTableService {
     private final TraceTableRepository traceTableRepository;
     private final UserRepository userRepository;
     private final ThemeRepository themeRepository;
+    private final MinioService minioService;
     @Value("${app.img-directory}")
     private String imageDirectory;
 
-    public TraceTableService(TraceTableRepository traceTableRepository, UserRepository userRepository, ThemeRepository themeRepository) {
+    public TraceTableService(TraceTableRepository traceTableRepository, UserRepository userRepository, ThemeRepository themeRepository, MinioService minioService) {
         this.traceTableRepository = traceTableRepository;
         this.userRepository = userRepository;
         this.themeRepository = themeRepository;
+        this.minioService = minioService;
     }
 
     public TraceTableResponse insertTraceTable(
@@ -57,26 +59,19 @@ public class TraceTableService {
 
         traceTableRepository.save(traceTable);
 
-        return traceTable.entityToResponse();
+        return traceTable.entityToResponse(minioService);
     }
 
-    private String handleImageUpload(MultipartFile image) throws IOException {
+    private String handleImageUpload(MultipartFile image) {
         if (image == null || image.isEmpty()) {
             throw new TraceTableException("Imagem inválida ou vazia");
         }
 
-        File dir = new File(imageDirectory);
-        if (!dir.exists()) {
-            dir.mkdirs();
+        try {    
+            return minioService.uploadFile(image);
+        } catch (Exception e) {
+            throw new TraceTableException("Erro ao enviar imagem para o MinIO");
         }
-
-        String fileName = image.getOriginalFilename();
-
-        File destination = new File(imageDirectory + fileName);
-
-        image.transferTo(destination);
-
-        return "/assets/" + fileName;
     }
 
 
@@ -87,7 +82,7 @@ public class TraceTableService {
 
         Page<TraceTable> traceTables = traceTableRepository.findByCreator(pageable, user);
 
-        return traceTables.map(TraceTable::entityToResponse);
+        return traceTables.map(traceTable -> traceTable.entityToResponse(minioService));
     }
 
     public Page<TraceTableResponse> findAllByTheme(Pageable pageable, Long themeId) {
@@ -96,7 +91,7 @@ public class TraceTableService {
 
         Page<TraceTable> traceTables = traceTableRepository.findByThemes_Id(pageable, themeId);
 
-        return traceTables.map(TraceTable::entityToResponse);
+        return traceTables.map(traceTable -> traceTable.entityToResponse(minioService));
     }
 
     public void removeTraceTable(Long userId, Long traceId) throws UserNotHavePermissionException {
@@ -133,7 +128,7 @@ public class TraceTableService {
 
         traceTableRepository.save(traceTable);
 
-        return traceTable.entityToResponse();
+        return traceTable.entityToResponse(minioService);
     }
 
     private void updateData(TraceTableRequest newTraceTable, TraceTable traceTable) {

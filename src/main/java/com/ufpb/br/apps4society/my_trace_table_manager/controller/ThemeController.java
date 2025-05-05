@@ -3,7 +3,6 @@ package com.ufpb.br.apps4society.my_trace_table_manager.controller;
 
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.theme.ThemeRequest;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.theme.ThemeResponse;
-import com.ufpb.br.apps4society.my_trace_table_manager.dto.user.UserResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.ThemeService;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotHavePermissionException;
 import io.swagger.v3.oas.annotations.Operation;

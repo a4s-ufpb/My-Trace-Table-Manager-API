@@ -2,6 +2,8 @@ package com.ufpb.br.apps4society.my_trace_table_manager.entity;
 
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableRequest;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableResponse;
+import com.ufpb.br.apps4society.my_trace_table_manager.service.MinioService;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -54,11 +56,11 @@ public class TraceTable implements Serializable {
         this.themes = themes;
     }
 
-    public TraceTableResponse entityToResponse() {
+    public TraceTableResponse entityToResponse(MinioService minioService) {
         return new TraceTableResponse(
                 id,
                 exerciseName,
-                imgPath,
+                imgPath != null ? minioService.getFileUrl(imgPath) : null,
                 TableSerializationUtil.deserializeHeader(header),
                 TableSerializationUtil.deserializeTable(shownTraceTable),
                 TableSerializationUtil.deserializeTable(expectedTraceTable),
