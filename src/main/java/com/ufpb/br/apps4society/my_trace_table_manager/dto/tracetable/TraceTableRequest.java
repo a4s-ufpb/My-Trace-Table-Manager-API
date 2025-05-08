@@ -15,6 +15,8 @@ public record TraceTableRequest(
         @NotNull(message = "O campo shownTraceTable não pode ser nulo")
          List<List<String>> shownTraceTable,
         @NotNull(message = "O campo expectedTraceTable não pode ser nulo")
-         List<List<String>>  expectedTraceTable
+         List<List<String>>  expectedTraceTable,
+        @NotNull(message = "O campo type não pode ser nulo")
+        List<List<String>> typeTable
 ) {
 }

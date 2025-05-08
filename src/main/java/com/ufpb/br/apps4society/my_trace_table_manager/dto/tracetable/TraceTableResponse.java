@@ -11,6 +11,7 @@ public record TraceTableResponse(
         List<String> header,
         List<List<String>> shownTraceTable,
         List<List<String>>  expectedTraceTable,
+        List<List<String>> typeTable,
         UserResponse creator
 ) {
 }

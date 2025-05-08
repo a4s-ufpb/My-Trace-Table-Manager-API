@@ -36,6 +36,9 @@ public class TraceTable implements Serializable {
     @Column(columnDefinition = "TEXT")
     private String expectedTraceTable;
 
+    @Column(columnDefinition = "TEXT")
+    private String typeTable;
+
     @ManyToOne(cascade = CascadeType.PERSIST)
     private User creator;
 
@@ -52,6 +55,7 @@ public class TraceTable implements Serializable {
         this.header = TableSerializationUtil.serializeHeader(traceTableRequest.header());
         this.shownTraceTable = TableSerializationUtil.serializeTable(traceTableRequest.shownTraceTable());
         this.expectedTraceTable = TableSerializationUtil.serializeTable(traceTableRequest.expectedTraceTable());
+        this.typeTable = TableSerializationUtil.serializeTable(traceTableRequest.typeTable());
         this.creator = creator;
         this.themes = themes;
     }
@@ -64,6 +68,7 @@ public class TraceTable implements Serializable {
                 TableSerializationUtil.deserializeHeader(header),
                 TableSerializationUtil.deserializeTable(shownTraceTable),
                 TableSerializationUtil.deserializeTable(expectedTraceTable),
+                TableSerializationUtil.deserializeTable(typeTable),
                 creator.entityToResponse()
         );
     }
