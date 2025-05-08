@@ -96,8 +96,7 @@ public class TraceTableController {
     public ResponseEntity<TraceTableResponse> updateTraceTable(
             @RequestBody @Valid TraceTableRequest traceTableRequest,
             @PathVariable Long traceId,
-            @PathVariable Long userId,
-            @RequestParam(required = false) List<Long> themesIds) throws UserNotHavePermissionException {
-        return ResponseEntity.ok(traceTableService.updateTraceTable(traceTableRequest, traceId, userId, themesIds));
+            @PathVariable Long userId) throws UserNotHavePermissionException {
+        return ResponseEntity.ok(traceTableService.updateTraceTable(traceTableRequest, traceId, userId));
     }
 }

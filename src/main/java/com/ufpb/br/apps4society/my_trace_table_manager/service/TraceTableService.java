@@ -108,7 +108,7 @@ public class TraceTableService {
         traceTableRepository.delete(traceTable);
     }
 
-    public TraceTableResponse updateTraceTable(TraceTableRequest newTraceTable,  Long traceId, Long userId, List<Long> themesIds) throws UserNotHavePermissionException {
+    public TraceTableResponse updateTraceTable(TraceTableRequest newTraceTable,  Long traceId, Long userId) throws UserNotHavePermissionException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
@@ -121,11 +121,6 @@ public class TraceTableService {
 
         updateData(newTraceTable, traceTable);
 
-        if (themesIds != null && !themesIds.isEmpty()) {
-            List<Theme> themes = themeRepository.findAllById(themesIds);
-            traceTable.setThemes(themes);
-        }
-
         traceTableRepository.save(traceTable);
 
         return traceTable.entityToResponse(minioService);
@@ -136,6 +131,7 @@ public class TraceTableService {
         traceTable.setHeader(TableSerializationUtil.serializeHeader(newTraceTable.header()));
         traceTable.setShownTraceTable(TableSerializationUtil.serializeTable(newTraceTable.shownTraceTable()));
         traceTable.setExpectedTraceTable(TableSerializationUtil.serializeTable(newTraceTable.expectedTraceTable()));
+        traceTable.setTypeTable(TableSerializationUtil.serializeTable(newTraceTable.typeTable()));
     }
 
     private void validateTraceTableRequest(TraceTableRequest traceTable) {
@@ -155,6 +151,10 @@ public class TraceTableService {
 
         if (Objects.isNull(traceTable.expectedTraceTable()) || traceTable.expectedTraceTable().isEmpty()) {
             throw new IllegalArgumentException("O campo expectedTraceTable não pode ser nulo");
+        }
+
+        if (Objects.isNull(traceTable.typeTable()) || traceTable.typeTable().isEmpty()) {
+            throw new IllegalArgumentException("O campo typeTable não pode ser nulo");
         }
     }
 }
