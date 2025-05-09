@@ -37,6 +37,7 @@ public class SecurityConfig {
                     request.requestMatchers(HttpMethod.POST,"/v1/user/**").permitAll();
                     request.requestMatchers(HttpMethod.GET, "/v1/user/all").permitAll();
                     request.requestMatchers(HttpMethod.GET, "/v1/theme/**").permitAll();
+                    request.requestMatchers(HttpMethod.POST, "/v1/trace/check/**").permitAll();
                     request.requestMatchers(HttpMethod.GET, "/v1/trace/**").permitAll().anyRequest().authenticated();
                 })
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))

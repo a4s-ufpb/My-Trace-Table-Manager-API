@@ -30,7 +30,8 @@ public class TraceTableService {
     @Value("${app.img-directory}")
     private String imageDirectory;
 
-    public TraceTableService(TraceTableRepository traceTableRepository, UserRepository userRepository, ThemeRepository themeRepository, MinioService minioService) {
+    public TraceTableService(TraceTableRepository traceTableRepository, UserRepository userRepository,
+            ThemeRepository themeRepository, MinioService minioService) {
         this.traceTableRepository = traceTableRepository;
         this.userRepository = userRepository;
         this.themeRepository = themeRepository;
@@ -67,14 +68,12 @@ public class TraceTableService {
             throw new TraceTableException("Imagem inválida ou vazia");
         }
 
-        try {    
+        try {
             return minioService.uploadFile(image);
         } catch (Exception e) {
             throw new TraceTableException("Erro ao enviar imagem para o MinIO");
         }
     }
-
-
 
     public Page<TraceTableResponse> findAllByUser(Pageable pageable, Long userId) {
         User user = userRepository.findById(userId)
@@ -108,7 +107,8 @@ public class TraceTableService {
         traceTableRepository.delete(traceTable);
     }
 
-    public TraceTableResponse updateTraceTable(TraceTableRequest newTraceTable,  Long traceId, Long userId) throws UserNotHavePermissionException {
+    public TraceTableResponse updateTraceTable(TraceTableRequest newTraceTable, Long traceId, Long userId)
+            throws UserNotHavePermissionException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
@@ -132,6 +132,59 @@ public class TraceTableService {
         traceTable.setShownTraceTable(TableSerializationUtil.serializeTable(newTraceTable.shownTraceTable()));
         traceTable.setExpectedTraceTable(TableSerializationUtil.serializeTable(newTraceTable.expectedTraceTable()));
         traceTable.setTypeTable(TableSerializationUtil.serializeTable(newTraceTable.typeTable()));
+    }
+
+    public void checkUserAnswer(List<List<String>> userTraceTable, Long traceId) {
+        TraceTable traceTable = traceTableRepository.findById(traceId)
+                .orElseThrow(() -> new TraceNotFoundException("Exercício não encontrado"));
+
+        List<List<String>> expectedTraceTable = TableSerializationUtil
+                .deserializeTable(traceTable.getExpectedTraceTable());
+        List<List<String>> typeTable = TableSerializationUtil
+                .deserializeTable(traceTable.getTypeTable());
+
+        for (int i = 0; i < userTraceTable.size(); i++) {
+            for (int j = 0; j < userTraceTable.get(i).size(); j++) {
+                String userValue = userTraceTable.get(i).get(j);
+                String expectedValue = expectedTraceTable.get(i).get(j);
+                String cellType = typeTable.get(i).get(j);
+
+                if (!isValidType(userValue, cellType)) {
+                    throw new TraceTableException("Erro de tipo na célula [" + (i + 1) + "][" + (j + 1) + "]");
+                }
+
+                if (!userValue.equals(expectedValue)) {
+                    throw new TraceTableException("Valor incorreto na célula [" + (i + 1) + "][" + (j + 1) + "]");
+                }
+            }
+        }
+    }
+
+    private boolean isValidType(String value, String type) {
+        try {
+            if (value.equalsIgnoreCase("#") && type.equalsIgnoreCase("#")) {
+                return true;
+            }
+            switch (type.toLowerCase()) {
+                case "string":
+                    return true;
+                case "int":
+                    Integer.parseInt(value);
+                    return true;
+                case "float":
+                    Double.parseDouble(value);
+                    return true;
+                case "double":
+                    Double.parseDouble(value);
+                    return true;
+                case "boolean":
+                    return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
+                default:
+                    return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private void validateTraceTableRequest(TraceTableRequest traceTable) {
