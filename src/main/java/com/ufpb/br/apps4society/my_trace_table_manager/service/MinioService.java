@@ -40,8 +40,6 @@ public class MinioService {
             }
 
             String uniqueName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            logger.info("Nome único gerado para o arquivo: {}", uniqueName);
-            logger.info("Tamanho do arquivo: {}", uniqueName.length());
 
             // Faz o upload do arquivo
             try (InputStream inputStream = file.getInputStream()) {
