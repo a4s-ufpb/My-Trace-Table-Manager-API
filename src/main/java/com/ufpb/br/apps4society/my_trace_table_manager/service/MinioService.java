@@ -73,4 +73,19 @@ public class MinioService {
             throw new RuntimeException("Erro ao gerar URL do arquivo no MinIO", e);
         }
     }
+
+    public void deleteFile(String fileName) {
+        try {
+            minioClient.removeObject(
+                RemoveObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(fileName)
+                    .build()
+            );
+            logger.info("Arquivo removido com sucesso: {}", fileName);
+        } catch (Exception e) {
+            logger.error("Erro ao remover o arquivo: {}", e.getMessage(), e);
+            throw new RuntimeException("Erro ao remover o arquivo do MinIO", e);
+        }
+    }
 }

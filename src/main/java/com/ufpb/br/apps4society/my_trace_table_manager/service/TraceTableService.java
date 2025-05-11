@@ -103,6 +103,12 @@ public class TraceTableService {
             throw new UserNotHavePermissionException("Você não tem permissão de remover este exercício!");
         }
 
+        try {
+            minioService.deleteFile(traceTable.getImgPath());
+        } catch (Exception e) {
+            throw new TraceTableException("Erro ao remover imagem do MinIO");
+        }
+
         traceTableRepository.delete(traceTable);
     }
 
