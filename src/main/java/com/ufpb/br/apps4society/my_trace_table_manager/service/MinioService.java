@@ -22,18 +22,18 @@ public class MinioService {
     @Value("${minio.bucket-name}")
     private String bucketName;
 
+    private final int EXPIRATION_TIME_IN_SECONDS = 86400;
+
     private static final Logger logger = LoggerFactory.getLogger(MinioService.class);
 
     public String uploadFile(MultipartFile file) throws Exception {
         logger.info("Iniciando o upload do arquivo: {}", file.getOriginalFilename());
         try {
-            // Verifica se o bucket existe
             boolean isExist = minioClient.bucketExists(
                 BucketExistsArgs.builder().bucket(bucketName).build()
             );
 
             if (!isExist) {
-                // Cria o bucket se não existir
                 minioClient.makeBucket(
                     MakeBucketArgs.builder().bucket(bucketName).build()
                 );
@@ -41,7 +41,6 @@ public class MinioService {
 
             String uniqueName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
 
-            // Faz o upload do arquivo
             try (InputStream inputStream = file.getInputStream()) {
                 minioClient.putObject(
                     PutObjectArgs.builder()
@@ -66,7 +65,7 @@ public class MinioService {
                     .method(Method.GET)
                     .bucket(bucketName)
                     .object(fileName)
-                    .expiry(60 * 60) // 1 hora de validade
+                    .expiry(EXPIRATION_TIME_IN_SECONDS)
                     .build()
             );
         } catch (Exception e) {
