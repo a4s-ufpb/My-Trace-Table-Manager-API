@@ -30,26 +30,26 @@ public class MinioService {
         logger.info("Iniciando o upload do arquivo: {}", file.getOriginalFilename());
         try {
             boolean isExist = minioClient.bucketExists(
-                BucketExistsArgs.builder().bucket(bucketName).build()
-            );
+                    BucketExistsArgs.builder().bucket(bucketName).build());
 
             if (!isExist) {
                 minioClient.makeBucket(
-                    MakeBucketArgs.builder().bucket(bucketName).build()
-                );
+                        MakeBucketArgs.builder().bucket(bucketName).build());
             }
 
-            String uniqueName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            String uniqueName;
+            do {
+                uniqueName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            } while (objectExists(uniqueName));
 
             try (InputStream inputStream = file.getInputStream()) {
                 minioClient.putObject(
-                    PutObjectArgs.builder()
-                        .bucket(bucketName)
-                        .object(uniqueName)
-                        .stream(inputStream, file.getSize(), -1)
-                        .contentType(file.getContentType())
-                        .build()
-                );
+                        PutObjectArgs.builder()
+                                .bucket(bucketName)
+                                .object(uniqueName)
+                                .stream(inputStream, file.getSize(), -1)
+                                .contentType(file.getContentType())
+                                .build());
             }
             return uniqueName;
         } catch (Exception e) {
@@ -58,33 +58,45 @@ public class MinioService {
         }
     }
 
-    public String getFileUrl(String fileName) {
+    public String getObjectUrl(String objectName) {
         try {
             return minioClient.getPresignedObjectUrl(
-                GetPresignedObjectUrlArgs.builder()
-                    .method(Method.GET)
-                    .bucket(bucketName)
-                    .object(fileName)
-                    .expiry(EXPIRATION_TIME_IN_SECONDS)
-                    .build()
-            );
+                    GetPresignedObjectUrlArgs.builder()
+                            .method(Method.GET)
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .expiry(EXPIRATION_TIME_IN_SECONDS)
+                            .build());
         } catch (Exception e) {
             throw new RuntimeException("Erro ao gerar URL do arquivo no MinIO", e);
         }
     }
 
-    public void deleteFile(String fileName) {
+    public void deleteObject(String objectName) {
         try {
             minioClient.removeObject(
-                RemoveObjectArgs.builder()
-                    .bucket(bucketName)
-                    .object(fileName)
-                    .build()
-            );
-            logger.info("Arquivo removido com sucesso: {}", fileName);
+                    RemoveObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .build());
+            logger.info("Arquivo removido com sucesso: {}", objectName);
         } catch (Exception e) {
             logger.error("Erro ao remover o arquivo: {}", e.getMessage(), e);
             throw new RuntimeException("Erro ao remover o arquivo do MinIO", e);
+        }
+    }
+
+    private boolean objectExists(String objectName) {
+        try {
+            minioClient.statObject(
+                    StatObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .build());
+            return true;
+        } catch (Exception e) {
+            logger.error("Erro ao verificar a existência do arquivo: {}", e.getMessage(), e);
+            return false;
         }
     }
 }

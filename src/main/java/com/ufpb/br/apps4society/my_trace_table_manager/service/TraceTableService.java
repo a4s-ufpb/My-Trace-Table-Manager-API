@@ -10,7 +10,6 @@ import com.ufpb.br.apps4society.my_trace_table_manager.repository.TraceTableRepo
 import com.ufpb.br.apps4society.my_trace_table_manager.repository.UserRepository;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.*;
 import com.ufpb.br.apps4society.my_trace_table_manager.util.TableSerializationUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,8 +25,6 @@ public class TraceTableService {
     private final UserRepository userRepository;
     private final ThemeRepository themeRepository;
     private final MinioService minioService;
-    @Value("${app.img-directory}")
-    private String imageDirectory;
 
     public TraceTableService(TraceTableRepository traceTableRepository, UserRepository userRepository,
             ThemeRepository themeRepository, MinioService minioService) {
@@ -52,10 +49,10 @@ public class TraceTableService {
             throw new ThemeNotFoundException("Nenhum tema encontrado para os IDs fornecidos");
         }
 
-        String imgPath = handleImageUpload(image);
+        String imgName = handleImageUpload(image);
 
         TraceTable traceTable = new TraceTable(traceTableRequest, creator, themes);
-        traceTable.setImgPath(imgPath);
+        traceTable.setImgName(imgName);
 
         traceTableRepository.save(traceTable);
 
@@ -104,7 +101,7 @@ public class TraceTableService {
         }
 
         try {
-            minioService.deleteFile(traceTable.getImgPath());
+            minioService.deleteObject(traceTable.getImgName());
         } catch (Exception e) {
             throw new TraceTableException("Erro ao remover imagem do MinIO");
         }

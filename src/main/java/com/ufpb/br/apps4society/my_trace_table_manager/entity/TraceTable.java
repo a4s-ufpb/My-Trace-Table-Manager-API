@@ -25,7 +25,7 @@ public class TraceTable implements Serializable {
 
     private String exerciseName;
 
-    private String imgPath;
+    private String imgName;
 
     @Column(columnDefinition = "TEXT")
     private String header;
@@ -64,7 +64,7 @@ public class TraceTable implements Serializable {
         return new TraceTableResponse(
                 id,
                 exerciseName,
-                imgPath != null ? minioService.getFileUrl(imgPath) : null,
+                imgName != null ? minioService.getObjectUrl(imgName) : null,
                 TableSerializationUtil.deserializeHeader(header),
                 TableSerializationUtil.deserializeTable(shownTraceTable),
                 TableSerializationUtil.deserializeTable(expectedTraceTable),

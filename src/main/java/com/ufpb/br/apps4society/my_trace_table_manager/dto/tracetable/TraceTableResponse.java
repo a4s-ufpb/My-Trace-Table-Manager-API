@@ -7,7 +7,7 @@ import java.util.List;
 public record TraceTableResponse(
         Long id,
         String exerciseName,
-        String imgPath,
+        String imgName,
         List<String> header,
         List<List<String>> shownTraceTable,
         List<List<String>>  expectedTraceTable,
