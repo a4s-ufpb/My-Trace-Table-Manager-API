@@ -7,6 +7,9 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.ufpb.br.apps4society.my_trace_table_manager.entity.User;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.TokenException;
 import jakarta.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +23,7 @@ public class TokenProvider {
     @Value("${app.secret}")
     private String secret;
     private Algorithm algorithm;
-    private final long EXPIRATION_TIME_IN_SECONDS = 3600;
+    private final long EXPIRATION_TIME_IN_SECONDS = 86400;
 
     @PostConstruct
     public void setUp(){
@@ -31,7 +34,7 @@ public class TokenProvider {
     public String generateToken(User user){
         try {
             return JWT.create()
-                    .withSubject(user.getEmail())
+                    .withSubject(String.valueOf(user.getId()))
                     .withIssuedAt(Instant.now())
                     .withExpiresAt(expirationToken())
                     .sign(algorithm)

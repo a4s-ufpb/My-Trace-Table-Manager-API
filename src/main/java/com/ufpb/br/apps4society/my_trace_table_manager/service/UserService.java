@@ -9,6 +9,9 @@ import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.Invalid
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserAlreadyExistsException;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotFoundException;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotHavePermissionException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,9 +28,10 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     private TokenProvider tokenProvider;
 
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     @Autowired
-    public UserService(UserRepository userRepository, AuthenticationManager authenticationManager,
-                       PasswordEncoder passwordEncoder, TokenProvider tokenProvider) {
+    public UserService(UserRepository userRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, TokenProvider tokenProvider) {
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
@@ -115,14 +119,10 @@ public class UserService {
         if (token != null && token.startsWith("Bearer ")){
             token = token.substring("Bearer ".length());
         }
+        String userId = tokenProvider.getSubjectByToken(token);
 
-        String email = tokenProvider.getSubjectByToken(token);
-
-        User user = (User) userRepository.findByEmail(email);
-
-        if (user == null){
-            throw new InvalidUserException("Usuário inválido, pode ter sido removido do BD e utilizado o token");
-        }
+        User user = (User) userRepository.findById(Long.valueOf(userId))
+                .orElseThrow(() -> new InvalidUserException("Usuário inválido, pode ter sido removido do BD e utilizado o token"));
 
         return user;
     }

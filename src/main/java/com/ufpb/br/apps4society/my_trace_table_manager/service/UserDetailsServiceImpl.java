@@ -24,4 +24,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         return userDetails;
     }
+
+    public UserDetails loadUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário inválido, pode ter sido removido do BD e utilizado o token"));
+    }
 }
