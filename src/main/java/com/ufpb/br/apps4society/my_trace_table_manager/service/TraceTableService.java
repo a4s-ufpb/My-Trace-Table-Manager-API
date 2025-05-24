@@ -82,7 +82,7 @@ public class TraceTableService {
 
     public Page<TraceTableResponse> findAllByTheme(Pageable pageable, Long themeId) {
         themeRepository.findById(themeId)
-                .orElseThrow(() -> new UserNotFoundException("Tema não encontrado"));
+                .orElseThrow(() -> new ThemeNotFoundException("Tema não encontrado"));
 
         Page<TraceTable> traceTables = traceTableRepository.findByThemes_Id(pageable, themeId);
 
@@ -197,19 +197,19 @@ public class TraceTableService {
             throw new IllegalArgumentException("Campo exerciseName deve ter entre 3 e 30 caracteres");
         }
         if (Objects.isNull(traceTable.header()) || traceTable.header().isEmpty()) {
-            throw new IllegalArgumentException("O campo header não pode ser nulo");
+            throw new IllegalArgumentException("O campo header não pode ser vazio ou nulo");
         }
 
         if (Objects.isNull(traceTable.shownTraceTable()) || traceTable.shownTraceTable().isEmpty()) {
-            throw new IllegalArgumentException("O campo shownTraceTable não pode ser nulo");
+            throw new IllegalArgumentException("O campo shownTraceTable não pode ser vazio ou nulo");
         }
 
         if (Objects.isNull(traceTable.expectedTraceTable()) || traceTable.expectedTraceTable().isEmpty()) {
-            throw new IllegalArgumentException("O campo expectedTraceTable não pode ser nulo");
+            throw new IllegalArgumentException("O campo expectedTraceTable não pode ser vazio ou nulo");
         }
 
         if (Objects.isNull(traceTable.typeTable()) || traceTable.typeTable().isEmpty()) {
-            throw new IllegalArgumentException("O campo typeTable não pode ser nulo");
+            throw new IllegalArgumentException("O campo typeTable não pode ser vazio ou nulo");
         }
     }
 }
