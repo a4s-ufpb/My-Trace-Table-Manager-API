@@ -78,7 +78,7 @@ public class ThemeService {
 
     @Transactional
     private void removeThemeAssociationsFromTraceTable(Theme theme) {
-        Page<TraceTable> traceTables = traceTableRepository.findByThemes_Id(null, theme.getId());
+        Page<TraceTable> traceTables = traceTableRepository.findByThemes_Id(Pageable.unpaged(), theme.getId());
 
         for (TraceTable traceTable : traceTables) {
             traceTable.getThemes().remove(theme);
