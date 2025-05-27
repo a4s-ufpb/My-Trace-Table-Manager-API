@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableRequest;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.TraceTableService;
-import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.TraceTableException;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotHavePermissionException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
