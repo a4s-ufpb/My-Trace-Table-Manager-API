@@ -85,7 +85,6 @@ public class UserServiceTest {
         when(mockRequest.email()).thenReturn("email@test.com");
 
         User existingUser = mock(User.class);
-        when(existingUser.getRole()).thenReturn(Role.USER);
 
         when(userRepository.findByEmail("email@test.com")).thenReturn(existingUser);
 

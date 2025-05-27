@@ -9,6 +9,8 @@ import com.ufpb.br.apps4society.my_trace_table_manager.repository.ThemeRepositor
 import com.ufpb.br.apps4society.my_trace_table_manager.repository.TraceTableRepository;
 import com.ufpb.br.apps4society.my_trace_table_manager.repository.UserRepository;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.*;
+import com.ufpb.br.apps4society.my_trace_table_manager.service.validation.CellTypeValidator;
+import com.ufpb.br.apps4society.my_trace_table_manager.service.validation.CellTypeValidatorFactory;
 import com.ufpb.br.apps4society.my_trace_table_manager.util.TableSerializationUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -151,7 +153,14 @@ public class TraceTableService {
                 String expectedValue = expectedTraceTable.get(i).get(j);
                 String cellType = typeTable.get(i).get(j);
 
-                if (!isValidType(userValue, cellType)) {
+                CellTypeValidator validator;
+                try {
+                    validator = CellTypeValidatorFactory.getValidator(cellType);
+                } catch (IllegalArgumentException e) {
+                    throw new TraceTableException("Tipo desconhecido na célula [" + (i + 1) + "][" + (j + 1) + "]");
+                }
+
+                if (!validator.isValid(userValue)) {
                     throw new TraceTableException("Erro de tipo na célula [" + (i + 1) + "][" + (j + 1) + "]");
                 }
 
@@ -159,33 +168,6 @@ public class TraceTableService {
                     throw new TraceTableException("Valor incorreto na célula [" + (i + 1) + "][" + (j + 1) + "]");
                 }
             }
-        }
-    }
-
-    private boolean isValidType(String value, String type) {
-        try {
-            if (value.equalsIgnoreCase("#") && type.equalsIgnoreCase("#")) {
-                return true;
-            }
-            switch (type.toLowerCase()) {
-                case "string":
-                    return true;
-                case "int":
-                    Integer.parseInt(value);
-                    return true;
-                case "float":
-                    Double.parseDouble(value);
-                    return true;
-                case "double":
-                    Double.parseDouble(value);
-                    return true;
-                case "boolean":
-                    return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
-                default:
-                    return false;
-            }
-        } catch (Exception e) {
-            return false;
         }
     }
 
