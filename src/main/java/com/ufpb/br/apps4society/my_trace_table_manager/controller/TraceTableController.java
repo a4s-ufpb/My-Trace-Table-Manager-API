@@ -111,13 +111,7 @@ public class TraceTableController {
     public ResponseEntity<Void> checkUserAnswer(
             @PathVariable Long traceId,
             @RequestBody List<List<String>> userTraceTable) {
-        try {
-            traceTableService.checkUserAnswer(userTraceTable, traceId);
-            return ResponseEntity.ok().build();
-        } catch (TraceTableException e) {
-            return ResponseEntity.status(400).body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
-        }
+        traceTableService.checkUserAnswer(userTraceTable, traceId);
+        return ResponseEntity.ok().build();
     }
 }
