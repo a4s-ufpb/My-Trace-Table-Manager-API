@@ -1,6 +1,7 @@
 package com.ufpb.br.apps4society.my_trace_table_manager.service;
 
 import io.minio.*;
+import io.minio.errors.ErrorResponseException;
 import io.minio.http.Method;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,6 +95,12 @@ public class MinioService {
                             .object(objectName)
                             .build());
             return true;
+        } catch (ErrorResponseException e) {
+            if ("NoSuchKey".equals(e.errorResponse() != null ? e.errorResponse().code() : null)) {
+                return false;
+            }
+            logger.error("Erro ao verificar a existência do arquivo: {}", e.getMessage(), e);
+            throw new RuntimeException("Erro ao verificar a existência do arquivo no MinIO", e);
         } catch (Exception e) {
             logger.error("Erro ao verificar a existência do arquivo: {}", e.getMessage(), e);
             return false;
