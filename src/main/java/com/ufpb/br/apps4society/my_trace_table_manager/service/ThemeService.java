@@ -48,6 +48,12 @@ public class ThemeService {
         return themes.map(Theme::entityToResponse);
     }
 
+    public ThemeResponse findThemeById(Long themeId) {
+        Theme theme = themeRepository.findById(themeId)
+                .orElseThrow(() -> new ThemeNotFoundException("Tema não encontrado!"));
+        return theme.entityToResponse();
+    }
+
     public Page<ThemeResponse> findThemesByUser(Pageable pageable, Long userId) {
         User creator = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
