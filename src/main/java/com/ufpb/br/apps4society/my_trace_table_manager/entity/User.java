@@ -34,7 +34,7 @@ public class User implements Serializable, UserDetails {
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "creator")
     List<Theme> themes = new ArrayList<>();
-    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "creator")
+    @OneToMany(mappedBy = "creator")
     List<TraceTable> traceTables = new ArrayList<>();
 
     public User(UserRequest userRequest) {

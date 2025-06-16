@@ -1,6 +1,7 @@
 package com.ufpb.br.apps4society.my_trace_table_manager.service;
 
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.user.*;
+import com.ufpb.br.apps4society.my_trace_table_manager.entity.TraceTable;
 import com.ufpb.br.apps4society.my_trace_table_manager.entity.User;
 import com.ufpb.br.apps4society.my_trace_table_manager.entity.role.Role;
 import com.ufpb.br.apps4society.my_trace_table_manager.repository.UserRepository;
@@ -25,13 +26,15 @@ public class UserService {
     private AuthenticationManager authenticationManager;
     private PasswordEncoder passwordEncoder;
     private TokenProvider tokenProvider;
+    private TraceTableService traceTableService;
 
     @Autowired
-    public UserService(UserRepository userRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, TokenProvider tokenProvider) {
+    public UserService(UserRepository userRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, TokenProvider tokenProvider, TraceTableService traceTableService) {
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
+        this.traceTableService = traceTableService;
     }
 
     public UserResponse registerUser(UserRequest userRequest) throws UserAlreadyExistsException {
@@ -69,6 +72,10 @@ public class UserService {
 
         if (loggedUser.userNotHavePermission(removeUser)){
             throw new UserNotHavePermissionException("Você não tem permissão para remover esse usuário");
+        }
+
+        for (TraceTable traceTable : removeUser.getTraceTables()) {
+            traceTableService.removeTraceTable(id, traceTable.getId());
         }
 
         userRepository.delete(removeUser);
