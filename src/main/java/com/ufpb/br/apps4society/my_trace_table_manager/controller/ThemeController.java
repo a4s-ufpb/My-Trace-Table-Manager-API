@@ -49,7 +49,7 @@ public class ThemeController {
         })
         @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
         public ResponseEntity<Page<ThemeResponse>> findAllThemes(
-                        @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+                        @PageableDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
                 return ResponseEntity.ok(themeService.findAllThemes(pageable));
         }
 
@@ -70,7 +70,7 @@ public class ThemeController {
         })
         @GetMapping(value = "/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
         public ResponseEntity<Page<ThemeResponse>> findThemesByUser(
-                        @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                        @PageableDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
                         @PathVariable Long userId) {
                 return ResponseEntity.ok(themeService.findThemesByUser(pageable, userId));
         }
@@ -82,7 +82,7 @@ public class ThemeController {
         })
         @GetMapping(value = "/trace/{traceId}", produces = MediaType.APPLICATION_JSON_VALUE)
         public ResponseEntity<Page<ThemeResponse>> findAllThemesByTraceTable(
-                        @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                        @PageableDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
                         @PathVariable Long traceId) {
                 return ResponseEntity.ok(themeService.findAllThemesByTraceTable(pageable, traceId));
         }

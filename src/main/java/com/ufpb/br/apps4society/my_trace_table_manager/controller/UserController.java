@@ -75,7 +75,7 @@ public class UserController {
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "12") Integer size,
             @RequestParam(value = "name", defaultValue = "") String name) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
         return ResponseEntity.ok(userService.findAllUsers(pageable, name));
     }
 
