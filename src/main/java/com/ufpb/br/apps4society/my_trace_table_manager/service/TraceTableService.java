@@ -1,5 +1,6 @@
 package com.ufpb.br.apps4society.my_trace_table_manager.service;
 
+import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.CellErrorResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableRequest;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.entity.Theme;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -147,11 +149,15 @@ public class TraceTableService {
         List<List<String>> typeTable = TableSerializationUtil
                 .deserializeTable(traceTable.getTypeTable());
 
+        List<CellErrorResponse> errors = new ArrayList<>();
+
         for (int i = 0; i < userTraceTable.size(); i++) {
             for (int j = 0; j < userTraceTable.get(i).size(); j++) {
                 String userValue = userTraceTable.get(i).get(j);
                 String expectedValue = expectedTraceTable.get(i).get(j);
                 String cellType = typeTable.get(i).get(j);
+
+                if ("#".equals(expectedValue)) continue;
 
                 CellTypeValidator validator;
                 try {
@@ -161,13 +167,15 @@ public class TraceTableService {
                 }
 
                 if (!validator.isValid(userValue)) {
-                    throw new TraceTableException("Erro de tipo na célula [" + (i + 1) + "][" + (j + 1) + "]");
-                }
-
-                if (!userValue.equals(expectedValue)) {
-                    throw new TraceTableException("Valor incorreto na célula [" + (i + 1) + "][" + (j + 1) + "]");
+                    errors.add(new CellErrorResponse(i, j, "Tipo inválido"));
+                } else if (!userValue.equals(expectedValue)) {
+                    errors.add(new CellErrorResponse(i, j, "Valor incorreto"));
                 }
             }
+        }
+
+        if (!errors.isEmpty()) {
+            throw new TraceTableDetailedException("Célula(s) com erro(s)!", errors);
         }
     }
 

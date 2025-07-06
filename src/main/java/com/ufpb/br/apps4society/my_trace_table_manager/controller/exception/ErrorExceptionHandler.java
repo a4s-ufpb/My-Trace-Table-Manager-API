@@ -1,5 +1,6 @@
 package com.ufpb.br.apps4society.my_trace_table_manager.controller.exception;
 
+import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.CellErrorResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.List;
 
 @RestControllerAdvice
 public class ErrorExceptionHandler {
@@ -20,6 +22,13 @@ public class ErrorExceptionHandler {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ErrorResponse erroResponse = new ErrorResponse(Instant.now(),status.value(),e.getMessage(),request.getRequestURI());
         return ResponseEntity.status(status).body(erroResponse);
+    }
+
+    @ExceptionHandler(TraceTableDetailedException.class)
+    public ResponseEntity<List<CellErrorResponse>> traceTableDetailedErro(
+        TraceTableDetailedException e, HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getErrors());
     }
 
     @ExceptionHandler(IOException.class)

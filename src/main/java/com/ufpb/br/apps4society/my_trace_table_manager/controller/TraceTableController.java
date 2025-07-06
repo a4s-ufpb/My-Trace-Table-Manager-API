@@ -1,11 +1,13 @@
 package com.ufpb.br.apps4society.my_trace_table_manager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.CellErrorResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableRequest;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.TraceTableService;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotHavePermissionException;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -111,7 +113,7 @@ public class TraceTableController {
         @Operation(tags = "Trace", summary = "Check User Answer", responses = {
                         @ApiResponse(description = "No Content", responseCode = "200", content = @Content()),
                         @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
-                        @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content())
+                        @ApiResponse(description = "Erro nas células da tabela respondida", responseCode = "400", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CellErrorResponse.class))))
         })
         @PostMapping(value = "/check/{traceId}", produces = MediaType.APPLICATION_JSON_VALUE)
         public ResponseEntity<Void> checkUserAnswer(
