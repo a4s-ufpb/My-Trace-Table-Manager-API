@@ -183,7 +183,7 @@ public class TraceTableService {
         if (Objects.isNull(traceTable.exerciseName()) || traceTable.exerciseName().isBlank()) {
             throw new IllegalArgumentException("Campo exerciseName não pode ser vazio ou nulo");
         }
-        if (traceTable.exerciseName().length() < 3 || traceTable.exerciseName().length() > 30) {
+        if (traceTable.exerciseName().length() < 1 || traceTable.exerciseName().length() > 30) {
             throw new IllegalArgumentException("Campo exerciseName deve ter entre 3 e 30 caracteres");
         }
         if (Objects.isNull(traceTable.header()) || traceTable.header().isEmpty()) {
