@@ -15,10 +15,26 @@ services:
     networks:
       - trace-network
 
+  minio:
+    container_name: container-minio
+    image: minio/minio:latest
+    restart: always
+    env_file:
+      - dev.env
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - trace-network
+
   trace-api:
     container_name: container-api
     depends_on:
       - db
+      - minio
     restart: always
     build:
       context: .
@@ -32,6 +48,7 @@ services:
 
 volumes:
   db_data: {}
+  minio_data: {}
 
 networks:
   trace-network:
