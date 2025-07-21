@@ -2,7 +2,6 @@ package com.ufpb.br.apps4society.my_trace_table_manager.service;
 
 import io.minio.*;
 import io.minio.errors.ErrorResponseException;
-import io.minio.http.Method;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +22,8 @@ public class MinioService {
     @Value("${minio.bucket-name}")
     private String bucketName;
 
-    private final int EXPIRATION_TIME_IN_SECONDS = 86400;
+    @Value("${minio.public-url}")
+    private String publicUrl;
 
     private static final Logger logger = LoggerFactory.getLogger(MinioService.class);
 
@@ -60,17 +60,7 @@ public class MinioService {
     }
 
     public String getObjectUrl(String objectName) {
-        try {
-            return minioClient.getPresignedObjectUrl(
-                    GetPresignedObjectUrlArgs.builder()
-                            .method(Method.GET)
-                            .bucket(bucketName)
-                            .object(objectName)
-                            .expiry(EXPIRATION_TIME_IN_SECONDS)
-                            .build());
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar URL do arquivo no MinIO", e);
-        }
+        return publicUrl + "/" + bucketName + "/" + objectName;
     }
 
     public void deleteObject(String objectName) {

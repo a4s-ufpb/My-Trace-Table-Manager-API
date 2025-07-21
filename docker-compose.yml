@@ -7,7 +7,7 @@ services:
     image: postgres:16
     restart: always
     env_file:
-      - dev.env
+      - .env
     ports:
       - "5432:5432"
     volumes:
@@ -20,13 +20,30 @@ services:
     image: minio/minio:latest
     restart: always
     env_file:
-      - dev.env
+      - .env
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001"
+    networks:
+      - trace-network
+  
+  minio-client:
+    image: minio/mc
+    depends_on:
+      - minio
+    restart: "no"
+    entrypoint: >
+      /bin/sh -c "
+        sleep 5 &&
+        mc alias set local http://minio:9000 $MINIO_ACCESS_KEY $MINIO_SECRET_KEY &&
+        mc anonymous set download local/$MINIO_BUCKET_NAME
+      "
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     networks:
       - trace-network
 
@@ -40,7 +57,7 @@ services:
       context: .
       dockerfile: Dockerfile
     env_file:
-      - dev.env
+      - .env
     ports:
       - "8080:8080"
     networks:
@@ -54,3 +71,4 @@ networks:
   trace-network:
     name: trace-network
     driver: bridge
+    external: true

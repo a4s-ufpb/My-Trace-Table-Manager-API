@@ -18,7 +18,7 @@ springdoc:
         - /v1/**
 
 minio:
-  url: ${MINIO_URL}
+  url: ${MINIO_URL:http://localhost:9000}
   access-key: ${MINIO_ACCESS_KEY}
   secret-key: ${MINIO_SECRET_KEY}
   bucket-name: ${MINIO_BUCKET_NAME}
