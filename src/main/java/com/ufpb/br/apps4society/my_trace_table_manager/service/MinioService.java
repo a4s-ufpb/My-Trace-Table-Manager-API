@@ -71,6 +71,13 @@ public class MinioService {
                             .object(objectName)
                             .build());
             logger.info("Arquivo removido com sucesso: {}", objectName);
+        } catch (ErrorResponseException e) {
+            if (e.errorResponse() != null && "NoSuchKey".equals(e.errorResponse().code())) {
+                logger.warn("Arquivo {} já não existe no MinIO", objectName);
+                return;
+            }
+            logger.error("Erro ao remover o arquivo (erro de resposta): {}", e.getMessage(), e);
+            throw new RuntimeException("Erro ao remover o arquivo do MinIO", e);
         } catch (Exception e) {
             logger.error("Erro ao remover o arquivo: {}", e.getMessage(), e);
             throw new RuntimeException("Erro ao remover o arquivo do MinIO", e);

@@ -13,6 +13,9 @@ import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.*;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.validation.CellTypeValidator;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.validation.CellTypeValidatorFactory;
 import com.ufpb.br.apps4society.my_trace_table_manager.util.TableSerializationUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,8 @@ import java.util.Objects;
 
 @Service
 public class TraceTableService {
+    private static final Logger logger = LoggerFactory.getLogger(MinioService.class);
+
     private final TraceTableRepository traceTableRepository;
     private final UserRepository userRepository;
     private final ThemeRepository themeRepository;
@@ -107,7 +112,8 @@ public class TraceTableService {
         try {
             minioService.deleteObject(traceTable.getImgName());
         } catch (Exception e) {
-            throw new TraceTableException("Erro ao remover imagem do MinIO");
+            logger.warn("Erro ao excluir imagem do MinIO. Prosseguindo com exclusão da TraceTable. Erro: {}",
+                    e.getMessage());
         }
 
         traceTableRepository.delete(traceTable);
@@ -157,7 +163,8 @@ public class TraceTableService {
                 String expectedValue = expectedTraceTable.get(i).get(j);
                 String cellType = typeTable.get(i).get(j);
 
-                if ("#".equals(expectedValue)) continue;
+                if ("#".equals(expectedValue))
+                    continue;
 
                 CellTypeValidator validator;
                 try {
