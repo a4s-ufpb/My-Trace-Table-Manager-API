@@ -22,3 +22,4 @@ minio:
   access-key: ${MINIO_ACCESS_KEY}
   secret-key: ${MINIO_SECRET_KEY}
   bucket-name: ${MINIO_BUCKET_NAME}
+  public-url: ${MINIO_PUBLIC_URL:http://localhost:9000}
