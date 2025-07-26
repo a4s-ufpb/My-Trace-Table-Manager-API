@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record ThemeRequest(
-        @NotBlank(message = "Campo name não pode ser vazio")
-        @Size(min = 2, max = 30, message = "Número de caracteres inválido")
+        @NotBlank(message = "Tema não pode ser vazio")
+        @Size(min = 2, max = 30, message = "Número de caracteres do tema inválido")
         String name
 ) {
 }

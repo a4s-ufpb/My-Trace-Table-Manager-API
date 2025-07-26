@@ -52,6 +52,7 @@ public class MinioService {
                                 .contentType(file.getContentType())
                                 .build());
             }
+            logger.info("Arquivo {} enviado com sucesso para o bucket {}", uniqueName, bucketName);
             return uniqueName;
         } catch (Exception e) {
             logger.error("Erro ao fazer upload do arquivo: {}", e.getMessage(), e);

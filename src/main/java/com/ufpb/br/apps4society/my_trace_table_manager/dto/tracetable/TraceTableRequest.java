@@ -7,16 +7,16 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public record TraceTableRequest(
-        @NotBlank(message = "Campo exerciseName não pode ser vazio")
-        @Size(min = 1, max = 30, message = "Número de caracteres inválido")
+        @NotBlank(message = "Nome do exercício não pode ser vazio")
+        @Size(min = 1, max = 30, message = "Número de caracteres do nome do exercício inválido")
          String exerciseName,
-         @NotNull(message = "O campo header não pode ser nulo")
+         @NotNull(message = "Cabeçalho não pode ser nulo")
          List<String> header,
-        @NotNull(message = "O campo shownTraceTable não pode ser nulo")
+        @NotNull(message = "Tabela mostrada não pode ser nula")
          List<List<String>> shownTraceTable,
-        @NotNull(message = "O campo expectedTraceTable não pode ser nulo")
+        @NotNull(message = "Tabela esperada não pode ser nula")
          List<List<String>>  expectedTraceTable,
-        @NotNull(message = "O campo type não pode ser nulo")
+        @NotNull(message = "Tabela de tipos não pode ser nula")
         List<List<String>> typeTable
 ) {
 }
