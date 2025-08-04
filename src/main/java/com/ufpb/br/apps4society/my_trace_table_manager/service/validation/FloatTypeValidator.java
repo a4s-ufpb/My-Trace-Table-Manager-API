@@ -8,6 +8,9 @@ public class FloatTypeValidator implements CellTypeValidator {
             return false;
         }
         try {
+            if (!value.contains(".")) {
+                return false;
+            }
             Double.parseDouble(value);
             return true;
         } catch (NumberFormatException e) {
