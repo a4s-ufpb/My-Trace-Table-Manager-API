@@ -26,25 +26,50 @@ public class SecurityFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+        String method = request.getMethod();
+
+        if (isPublicRoute(path, method)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = getTokenOfRequest(request);
 
-        if (token != null){
+        if (token != null) {
             String userIdStr = tokenProvider.getSubjectByToken(token);
             Long userId = Long.valueOf(userIdStr);
 
             UserDetails userDetails = userDetailsService.loadUserById(userId);
-            UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(userDetails, null,
+                    userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(user);
         }
 
         filterChain.doFilter(request, response);
     }
 
+    private boolean isPublicRoute(String method, String path) {
+        return
+            (method.equals("GET") && path.equals("/v1/user/all")) ||
+            (method.equals("POST") && path.equals("/v1/user/login")) ||
+            (method.equals("GET") && path.startsWith("/v1/theme")) ||
+            (method.equals("POST") && path.startsWith("/v1/trace/check")) ||
+            (method.equals("GET") && path.startsWith("/v1/trace")) ||
+            path.startsWith("/v3/api-docs") ||
+            path.startsWith("/swagger-ui") ||
+            path.startsWith("/swagger-resources") ||
+            path.startsWith("/h2") ||
+            path.equals("/");
+    }
+
     private String getTokenOfRequest(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
 
-        if (token == null){
+        if (token == null) {
             return null;
         }
 
