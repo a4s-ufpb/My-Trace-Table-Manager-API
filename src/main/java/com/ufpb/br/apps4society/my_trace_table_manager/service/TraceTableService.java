@@ -76,7 +76,7 @@ public class TraceTableService {
         try {
             return minioService.uploadFile(image);
         } catch (Exception e) {
-            throw new TraceTableException("Erro ao enviar imagem para o MinIO");
+            throw new TraceTableException("Erro ao salvar a imagem do exercício");
         }
     }
 
