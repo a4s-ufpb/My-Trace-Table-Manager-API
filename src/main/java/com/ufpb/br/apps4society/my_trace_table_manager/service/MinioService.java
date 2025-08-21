@@ -2,6 +2,7 @@ package com.ufpb.br.apps4society.my_trace_table_manager.service;
 
 import io.minio.*;
 import io.minio.errors.ErrorResponseException;
+import jakarta.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,17 +28,50 @@ public class MinioService {
 
     private static final Logger logger = LoggerFactory.getLogger(MinioService.class);
 
-    public String uploadFile(MultipartFile file) throws Exception {
-        logger.info("Iniciando o upload do arquivo: {}", file.getOriginalFilename());
+    @PostConstruct
+    public void init() {
         try {
             boolean isExist = minioClient.bucketExists(
                     BucketExistsArgs.builder().bucket(bucketName).build());
-
+            
             if (!isExist) {
+                logger.info("Bucket {} não existe. Criando...", bucketName);
                 minioClient.makeBucket(
                         MakeBucketArgs.builder().bucket(bucketName).build());
+                logger.info("Bucket {} criado com sucesso.", bucketName);
+            } else {
+                logger.info("Bucket {} já existe.", bucketName);
             }
 
+            String policyJson = """
+            {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {"AWS": ["*"]},
+                        "Action": ["s3:GetObject"],
+                        "Resource": ["arn:aws:s3:::%s/*"]
+                    }
+                ]
+            }
+            """.formatted(bucketName);
+
+            minioClient.setBucketPolicy(
+                    SetBucketPolicyArgs.builder()
+                            .bucket(bucketName)
+                            .config(policyJson)
+                            .build()
+            );
+            logger.info("Política de bucket definida com sucesso ao bucket '{}'.", bucketName);
+        } catch (Exception e) {
+            logger.error("Erro durante a inicialização do MinIO: {}", e.getMessage(), e);
+        }
+    }
+
+    public String uploadFile(MultipartFile file) throws Exception {
+        logger.info("Iniciando o upload do arquivo: {}", file.getOriginalFilename());
+        try {
             String uniqueName;
             do {
                 uniqueName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
