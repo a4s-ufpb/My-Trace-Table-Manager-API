@@ -8,6 +8,7 @@ public record TraceTableResponse(
         Long id,
         String exerciseName,
         String imgName,
+        String programmingLanguage,
         List<String> header,
         List<List<String>> shownTraceTable,
         List<List<String>>  expectedTraceTable,

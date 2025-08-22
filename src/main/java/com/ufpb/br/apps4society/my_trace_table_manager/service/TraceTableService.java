@@ -208,5 +208,9 @@ public class TraceTableService {
         if (Objects.isNull(traceTable.typeTable()) || traceTable.typeTable().isEmpty()) {
             throw new IllegalArgumentException("O campo typeTable não pode ser vazio ou nulo");
         }
+
+        if (Objects.isNull(traceTable.programmingLanguage()) || traceTable.programmingLanguage().isBlank()) {
+            throw new IllegalArgumentException("O campo programmingLanguage não pode ser vazio ou nulo");
+        }
     }
 }

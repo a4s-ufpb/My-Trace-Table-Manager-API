@@ -17,6 +17,8 @@ public record TraceTableRequest(
         @NotNull(message = "Tabela esperada não pode ser nula")
          List<List<String>>  expectedTraceTable,
         @NotNull(message = "Tabela de tipos não pode ser nula")
-        List<List<String>> typeTable
+        List<List<String>> typeTable,
+        @NotBlank(message = "A linguagem de programação não pode ser vazia")
+        String programmingLanguage
 ) {
 }
