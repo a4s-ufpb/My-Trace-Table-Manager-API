@@ -140,6 +140,7 @@ public class TraceTableService {
 
     private void updateData(TraceTableRequest newTraceTable, TraceTable traceTable) {
         traceTable.setExerciseName(newTraceTable.exerciseName());
+        traceTable.setProgrammingLanguage(newTraceTable.programmingLanguage());
         traceTable.setHeader(TableSerializationUtil.serializeHeader(newTraceTable.header()));
         traceTable.setShownTraceTable(TableSerializationUtil.serializeTable(newTraceTable.shownTraceTable()));
         traceTable.setExpectedTraceTable(TableSerializationUtil.serializeTable(newTraceTable.expectedTraceTable()));

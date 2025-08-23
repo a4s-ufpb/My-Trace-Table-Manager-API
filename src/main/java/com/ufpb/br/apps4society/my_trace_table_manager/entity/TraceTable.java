@@ -45,15 +45,12 @@ public class TraceTable implements Serializable {
     private User creator;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
-    @JoinTable(
-            name = "trace_table_theme",
-            joinColumns = @JoinColumn(name = "trace_table_id"),
-            inverseJoinColumns = @JoinColumn(name = "theme_id")
-    )
+    @JoinTable(name = "trace_table_theme", joinColumns = @JoinColumn(name = "trace_table_id"), inverseJoinColumns = @JoinColumn(name = "theme_id"))
     private List<Theme> themes = new ArrayList<>();
 
     public TraceTable(TraceTableRequest traceTableRequest, User creator, List<Theme> themes) {
         this.exerciseName = traceTableRequest.exerciseName();
+        this.programmingLanguage = traceTableRequest.programmingLanguage();
         this.header = TableSerializationUtil.serializeHeader(traceTableRequest.header());
         this.shownTraceTable = TableSerializationUtil.serializeTable(traceTableRequest.shownTraceTable());
         this.expectedTraceTable = TableSerializationUtil.serializeTable(traceTableRequest.expectedTraceTable());
@@ -72,7 +69,6 @@ public class TraceTable implements Serializable {
                 TableSerializationUtil.deserializeTable(shownTraceTable),
                 TableSerializationUtil.deserializeTable(expectedTraceTable),
                 TableSerializationUtil.deserializeTable(typeTable),
-                creator.entityToResponse()
-        );
+                creator.entityToResponse());
     }
 }
