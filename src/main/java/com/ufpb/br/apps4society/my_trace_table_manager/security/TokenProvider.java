@@ -21,7 +21,7 @@ public class TokenProvider {
     @Value("${app.secret}")
     private String secret;
     private Algorithm algorithm;
-    private final long EXPIRATION_TIME_IN_SECONDS = 86400;
+    private final long EXPIRATION_TIME_IN_SECONDS = 259200;
 
     @PostConstruct
     public void setUp(){
