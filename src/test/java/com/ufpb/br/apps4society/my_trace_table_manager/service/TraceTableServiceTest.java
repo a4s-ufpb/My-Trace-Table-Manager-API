@@ -529,6 +529,36 @@ public class TraceTableServiceTest {
     }
 
     @Test
+    void findByIdSuccess() {
+        Long traceId = 1L;
+        TraceTable mockTraceTable = mock(TraceTable.class);
+        TraceTableResponse mockResponse = mock(TraceTableResponse.class);
+
+        when(traceTableRepository.findById(traceId)).thenReturn(Optional.of(mockTraceTable));
+        
+        when(mockTraceTable.entityToResponse(minioService)).thenReturn(mockResponse);
+
+        TraceTableResponse result = traceTableService.findById(traceId);
+
+        assertNotNull(result);
+        assertEquals(mockResponse, result);
+        
+        verify(traceTableRepository, times(1)).findById(traceId);
+    }
+
+    @Test
+    void findByIdThrowsExceptionWhenTraceNotFound() {
+        Long traceId = 1L;
+
+        when(traceTableRepository.findById(traceId)).thenReturn(Optional.empty());
+
+        TraceNotFoundException exception = assertThrows(TraceNotFoundException.class, 
+            () -> traceTableService.findById(traceId));
+
+        assertEquals("Exercício não encontrado", exception.getMessage());
+    }
+
+    @Test
     void checkUserAnswerSuccess() {
         Long traceId = 1L;
 

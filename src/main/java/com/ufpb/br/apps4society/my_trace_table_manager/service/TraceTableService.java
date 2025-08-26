@@ -80,6 +80,13 @@ public class TraceTableService {
         }
     }
 
+    public TraceTableResponse findById(Long id) {
+        TraceTable traceTable = traceTableRepository.findById(id)
+                .orElseThrow(() -> new TraceNotFoundException("Exercício não encontrado"));
+        
+        return traceTable.entityToResponse(minioService);
+    }
+
     public Page<TraceTableResponse> findAllByUser(Pageable pageable, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));

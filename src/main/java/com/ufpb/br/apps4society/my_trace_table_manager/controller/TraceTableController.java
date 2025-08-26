@@ -57,6 +57,16 @@ public class TraceTableController {
                                 .body(traceTableService.insertTraceTable(traceTableRequest, image, userId, themesIds));
         }
 
+        @Operation(tags = "Trace", summary = "Find Trace Table By ID", responses = {
+                        @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = TraceTableResponse.class))),
+                        @ApiResponse(description = "Not Found", responseCode = "404", content = @Content()),
+                        @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content())
+        })
+        @GetMapping(value = "/{traceId}", produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<TraceTableResponse> findById(@PathVariable Long traceId) {
+                return ResponseEntity.ok(traceTableService.findById(traceId));
+        }
+
         @Operation(tags = "Trace", summary = "Find All Trace Tables By User", responses = {
                         @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = TraceTableResponse.class))),
                         @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
@@ -108,7 +118,8 @@ public class TraceTableController {
                         @PathVariable Long traceId,
                         @PathVariable Long userId,
                         @RequestParam List<Long> themesIds) throws UserNotHavePermissionException {
-                return ResponseEntity.ok(traceTableService.updateTraceTable(traceTableRequest, traceId, userId, themesIds));
+                return ResponseEntity
+                                .ok(traceTableService.updateTraceTable(traceTableRequest, traceId, userId, themesIds));
         }
 
         @Operation(tags = "Trace", summary = "Check User Answer", responses = {
