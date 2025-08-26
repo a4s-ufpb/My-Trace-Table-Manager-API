@@ -31,7 +31,7 @@ jobs:
         push: true
         tags: |
           ghcr.io/a4s-ufpb/my-trace-table-manager-api:latest
-        cache-from: type=registry,ref=ghcr.io/a4s-ufpb/ghcr.io/a4s-ufpb/my-trace-table-manager-api:latest
+        cache-from: type=registry,ref=ghcr.io/a4s-ufpb/my-trace-table-manager-api:latest
         cache-to: type=inline
 
     - name: Callback portainer webhook
