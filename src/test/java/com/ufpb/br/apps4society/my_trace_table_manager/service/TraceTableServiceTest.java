@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableRequest;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableResponse;
+import com.ufpb.br.apps4society.my_trace_table_manager.dto.user.UserResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.entity.Theme;
 import com.ufpb.br.apps4society.my_trace_table_manager.entity.TraceTable;
 import com.ufpb.br.apps4society.my_trace_table_manager.entity.User;
@@ -61,6 +62,7 @@ public class TraceTableServiceTest {
         List<Long> themesIds = List.of(10L, 20L);
 
         User mockUser = mock(User.class);
+        UserResponse mockUserResponse = mock(UserResponse.class);
         Theme mockTheme1 = mock(Theme.class);
         Theme mockTheme2 = mock(Theme.class);
         List<Theme> mockThemes = List.of(mockTheme1, mockTheme2);
@@ -73,13 +75,15 @@ public class TraceTableServiceTest {
         when(mockTraceTableRequest.shownTraceTable()).thenReturn(List.of(List.of("valor")));
         when(mockTraceTableRequest.expectedTraceTable()).thenReturn(List.of(List.of("valor")));
         when(mockTraceTableRequest.typeTable()).thenReturn(List.of(List.of("string")));
+        when(mockTraceTableRequest.programmingLanguage()).thenReturn("python");
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
         when(themeRepository.findAllById(themesIds)).thenReturn(mockThemes);
         when(mockFile.isEmpty()).thenReturn(false);
         when(minioService.uploadFile(mockFile)).thenReturn("imageName.png");
-
         when(minioService.getObjectUrl("imageName.png")).thenReturn("http://mocked-url/imageName.png");
+
+        when(mockUser.entityToResponse()).thenReturn(mockUserResponse);
 
         when(traceTableRepository.save(any(TraceTable.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -94,7 +98,8 @@ public class TraceTableServiceTest {
         assertEquals(List.of(List.of("valor")), result.shownTraceTable());
         assertEquals(List.of(List.of("valor")), result.expectedTraceTable());
         assertEquals(List.of(List.of("string")), result.typeTable());
-        assertEquals(mockUser.entityToResponse(), result.creator());
+
+        assertEquals(mockUserResponse, result.creator());
 
         verify(userRepository, times(1)).findById(userId);
         verify(themeRepository, times(1)).findAllById(themesIds);
@@ -222,43 +227,20 @@ public class TraceTableServiceTest {
 
     @Test
     void insertTraceTableThrowsExceptionWhenExerciseNameIsNull() {
-        Long userId = 1L;
-        List<Long> themesIds = List.of(10L);
-
-        User mockUser = mock(User.class);
-        Theme mockTheme = mock(Theme.class);
-        List<Theme> mockThemes = List.of(mockTheme);
-
         TraceTableRequest mockRequest = mock(TraceTableRequest.class);
         MultipartFile mockFile = mock(MultipartFile.class);
 
         when(mockRequest.exerciseName()).thenReturn(null);
-        when(mockRequest.header()).thenReturn(List.of("cabeçalho"));
-        when(mockRequest.shownTraceTable()).thenReturn(List.of(List.of("valor")));
-        when(mockRequest.expectedTraceTable()).thenReturn(List.of(List.of("valor")));
-        when(mockRequest.typeTable()).thenReturn(List.of(List.of("string")));
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-        when(themeRepository.findAllById(themesIds)).thenReturn(mockThemes);
-        when(mockFile.isEmpty()).thenReturn(false);
 
         IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class,
-                () -> traceTableService.insertTraceTable(mockRequest, mockFile, userId, themesIds));
+                () -> traceTableService.insertTraceTable(mockRequest, mockFile, 1L, List.of(1L)));
 
         assertEquals("Campo exerciseName não pode ser vazio ou nulo", illegalArgumentException.getMessage());
-
-        verifyNoInteractions(minioService, traceTableRepository);
+        verifyNoInteractions(userRepository, themeRepository, minioService, traceTableRepository);
     }
 
     @Test
     void insertTraceTableThrowsExceptionWhenExerciseNameTooShort() {
-        Long userId = 1L;
-        List<Long> themesIds = List.of(10L);
-
-        User mockUser = mock(User.class);
-        Theme mockTheme = mock(Theme.class);
-        List<Theme> mockThemes = List.of(mockTheme);
-
         TraceTableRequest mockRequest = mock(TraceTableRequest.class);
         MultipartFile mockFile = mock(MultipartFile.class);
 
@@ -267,17 +249,13 @@ public class TraceTableServiceTest {
         when(mockRequest.shownTraceTable()).thenReturn(List.of(List.of("valor")));
         when(mockRequest.expectedTraceTable()).thenReturn(List.of(List.of("valor")));
         when(mockRequest.typeTable()).thenReturn(List.of(List.of("string")));
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-        when(themeRepository.findAllById(themesIds)).thenReturn(mockThemes);
-        when(mockFile.isEmpty()).thenReturn(false);
+        when(mockRequest.programmingLanguage()).thenReturn("python");
 
         IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class,
-                () -> traceTableService.insertTraceTable(mockRequest, mockFile, userId, themesIds));
+                () -> traceTableService.insertTraceTable(mockRequest, mockFile, 1L, List.of(1L)));
 
         assertEquals("Campo exerciseName deve ter entre 3 e 30 caracteres", illegalArgumentException.getMessage());
-
-        verifyNoInteractions(minioService, traceTableRepository);
+        verifyNoInteractions(userRepository, themeRepository, minioService, traceTableRepository);
     }
 
     @Test
@@ -340,7 +318,7 @@ public class TraceTableServiceTest {
         verifyNoInteractions(minioService, traceTableRepository);
     }
 
-     @Test
+    @Test
     void insertTraceTableThrowsExceptionWhenHeaderIsEmpty() {
         Long userId = 1L;
         List<Long> themesIds = List.of(10L);
@@ -830,73 +808,71 @@ public class TraceTableServiceTest {
     void updateTraceTableSuccess() throws UserNotHavePermissionException {
         Long userId = 1L;
         Long traceId = 2L;
+        List<Long> themesIds = List.of(10L, 11L);
 
         User mockUser = mock(User.class);
-        TraceTable mockTracetable = mock(TraceTable.class);
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-        when(traceTableRepository.findById(traceId)).thenReturn(Optional.of(mockTracetable));
-
-        when(mockUser.userNotHavePermission(any())).thenReturn(false);
-
+        TraceTable mockTraceTable = mock(TraceTable.class);
         TraceTableRequest mockTraceTableRequest = mock(TraceTableRequest.class);
         TraceTableResponse mockTraceTableResponse = mock(TraceTableResponse.class);
 
-        when(mockTracetable.entityToResponse(minioService)).thenReturn(mockTraceTableResponse);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(traceTableRepository.findById(traceId)).thenReturn(Optional.of(mockTraceTable));
+        when(themeRepository.findAllById(themesIds)).thenReturn(List.of(new Theme(), new Theme()));
+        when(mockUser.userNotHavePermission(any())).thenReturn(false);
+        when(mockTraceTable.entityToResponse(minioService)).thenReturn(mockTraceTableResponse);
 
-        TraceTableResponse result = traceTableService.updateTraceTable(mockTraceTableRequest, traceId, userId);
+        TraceTableResponse result = traceTableService.updateTraceTable(mockTraceTableRequest, traceId, userId,
+                themesIds);
 
         assertEquals(mockTraceTableResponse, result);
-        verify(userRepository, times(1)).findById(userId);
-        verify(traceTableRepository, times(1)).findById(traceId);
-        verify(mockTracetable, times(1)).entityToResponse(minioService);
-        verify(traceTableRepository, times(1)).save(mockTracetable);
+        verify(userRepository).findById(userId);
+        verify(traceTableRepository).findById(traceId);
+        verify(themeRepository).findAllById(themesIds);
+        verify(traceTableRepository).save(mockTraceTable);
     }
 
     @Test
     void updateTraceTableThrowsExceptionWhenUserNotFound() {
         Long userId = 1L;
         Long traceId = 2L;
+        List<Long> themesIds = List.of();
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
         TraceTableRequest mockTraceTableRequest = mock(TraceTableRequest.class);
 
         UserNotFoundException userNotFoundException = assertThrows(UserNotFoundException.class,
-                () -> traceTableService.updateTraceTable(mockTraceTableRequest, traceId, userId));
+                () -> traceTableService.updateTraceTable(mockTraceTableRequest, traceId, userId, themesIds));
 
         assertEquals("Usuário não encontrado", userNotFoundException.getMessage());
-
-        verify(userRepository, times(1)).findById(userId);
-        verifyNoInteractions(traceTableRepository, minioService);
+        verify(userRepository).findById(userId);
+        verifyNoInteractions(traceTableRepository, themeRepository, minioService);
     }
 
     @Test
     void updateTraceTableThrowsExceptionWhenTraceNotFound() {
         Long userId = 1L;
         Long traceId = 2L;
+        List<Long> themesIds = List.of();
 
         User mockUser = mock(User.class);
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-
         when(traceTableRepository.findById(traceId)).thenReturn(Optional.empty());
-
         TraceTableRequest mockTraceTableRequest = mock(TraceTableRequest.class);
 
         TraceNotFoundException traceNotFoundException = assertThrows(TraceNotFoundException.class,
-                () -> traceTableService.updateTraceTable(mockTraceTableRequest, traceId, userId));
+                () -> traceTableService.updateTraceTable(mockTraceTableRequest, traceId, userId, themesIds));
 
         assertEquals("Exercício não encontrado", traceNotFoundException.getMessage());
-
-        verify(userRepository, times(1)).findById(userId);
-        verify(traceTableRepository, times(1)).findById(traceId);
-        verifyNoInteractions(minioService);
+        verify(userRepository).findById(userId);
+        verify(traceTableRepository).findById(traceId);
+        verifyNoInteractions(themeRepository, minioService);
     }
 
     @Test
     void updateTraceTableThrowsExceptionWhenUserNotHavePermission() {
         Long userId = 1L;
         Long traceId = 2L;
+        List<Long> themesIds = List.of();
 
         User mockUser = mock(User.class);
         TraceTable mockTraceTable = mock(TraceTable.class);
@@ -904,17 +880,15 @@ public class TraceTableServiceTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
         when(traceTableRepository.findById(traceId)).thenReturn(Optional.of(mockTraceTable));
-
         when(mockUser.userNotHavePermission(any())).thenReturn(true);
 
         UserNotHavePermissionException userNotHavePermissionException = assertThrows(
                 UserNotHavePermissionException.class,
-                () -> traceTableService.updateTraceTable(mockTraceTableRequest, traceId, userId));
+                () -> traceTableService.updateTraceTable(mockTraceTableRequest, traceId, userId, themesIds));
 
         assertEquals("Você não tem permissão de remover este exercício!", userNotHavePermissionException.getMessage());
-
-        verify(userRepository, times(1)).findById(userId);
-        verify(traceTableRepository, times(1)).findById(traceId);
-        verifyNoInteractions(minioService);
+        verify(userRepository).findById(userId);
+        verify(traceTableRepository).findById(traceId);
+        verifyNoInteractions(themeRepository, minioService);
     }
 }
