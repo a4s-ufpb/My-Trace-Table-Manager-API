@@ -119,7 +119,8 @@ public class TraceTableService {
         traceTableRepository.delete(traceTable);
     }
 
-    public TraceTableResponse updateTraceTable(TraceTableRequest newTraceTable, Long traceId, Long userId)
+    public TraceTableResponse updateTraceTable(TraceTableRequest newTraceTable, Long traceId, Long userId,
+            List<Long> themesIds)
             throws UserNotHavePermissionException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
@@ -131,20 +132,26 @@ public class TraceTableService {
             throw new UserNotHavePermissionException("Você não tem permissão de remover este exercício!");
         }
 
-        updateData(newTraceTable, traceTable);
+        List<Theme> newThemes = themeRepository.findAllById(themesIds);
+        if (newThemes.isEmpty() && !themesIds.isEmpty()) {
+            throw new ThemeNotFoundException("Nenhum tema encontrado para os IDs fornecidos");
+        }
+
+        updateData(newTraceTable, traceTable, newThemes);
 
         traceTableRepository.save(traceTable);
 
         return traceTable.entityToResponse(minioService);
     }
 
-    private void updateData(TraceTableRequest newTraceTable, TraceTable traceTable) {
+    private void updateData(TraceTableRequest newTraceTable, TraceTable traceTable, List<Theme> newThemes) {
         traceTable.setExerciseName(newTraceTable.exerciseName());
         traceTable.setProgrammingLanguage(newTraceTable.programmingLanguage());
         traceTable.setHeader(TableSerializationUtil.serializeHeader(newTraceTable.header()));
         traceTable.setShownTraceTable(TableSerializationUtil.serializeTable(newTraceTable.shownTraceTable()));
         traceTable.setExpectedTraceTable(TableSerializationUtil.serializeTable(newTraceTable.expectedTraceTable()));
         traceTable.setTypeTable(TableSerializationUtil.serializeTable(newTraceTable.typeTable()));
+        traceTable.setThemes(newThemes);
     }
 
     public void checkUserAnswer(List<List<String>> userTraceTable, Long traceId) {
