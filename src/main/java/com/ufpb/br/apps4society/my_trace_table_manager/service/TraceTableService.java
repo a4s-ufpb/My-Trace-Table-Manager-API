@@ -105,11 +105,11 @@ public class TraceTableService {
         return traceTables.map(traceTable -> traceTable.entityToResponse(minioService));
     }
 
-    public Page<TraceTableResponse> findAllByThemeName(Pageable pageable, String themeName) {
+    public Page<TraceTableResponse> findAllByThemeName(Pageable pageable, String themeName, Long userId) {
         themeRepository.findByNameEqualsIgnoreCase(themeName)
                 .orElseThrow(() -> new ThemeNotFoundException("Tema não encontrado"));
 
-        Page<TraceTable> traceTables = traceTableRepository.findByThemes_NameIgnoreCase(pageable, themeName);
+        Page<TraceTable> traceTables = traceTableRepository.findByThemes_NameIgnoreCaseAndCreator_Id(pageable, themeName, userId);
 
         return traceTables.map(traceTable -> traceTable.entityToResponse(minioService));
     }
