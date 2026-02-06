@@ -79,6 +79,18 @@ public class TraceTableController {
                 return ResponseEntity.ok(traceTableService.findAllByUser(pageable, userId));
         }
 
+        @Operation(tags = "Trace", summary = "Find All Trace Tables By Theme Name", responses = {
+                @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = TraceTableResponse.class))),
+                @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
+                @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
+        })
+        @GetMapping(value = "/theme/name/{themeName}", produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<Page<TraceTableResponse>> findAllByThemeName(
+                @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                @PathVariable String themeName) {
+            return ResponseEntity.ok(traceTableService.findAllByThemeName(pageable, themeName));
+        }
+
         @Operation(tags = "Trace", summary = "Find All Trace Tables By Theme", responses = {
                         @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = TraceTableResponse.class))),
                         @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),

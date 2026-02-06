@@ -105,6 +105,15 @@ public class TraceTableService {
         return traceTables.map(traceTable -> traceTable.entityToResponse(minioService));
     }
 
+    public Page<TraceTableResponse> findAllByThemeName(Pageable pageable, String themeName) {
+        themeRepository.findByNameEqualsIgnoreCase(themeName)
+                .orElseThrow(() -> new ThemeNotFoundException("Tema não encontrado"));
+
+        Page<TraceTable> traceTables = traceTableRepository.findByThemes_NameIgnoreCase(pageable, themeName);
+
+        return traceTables.map(traceTable -> traceTable.entityToResponse(minioService));
+    }
+
     public void removeTraceTable(Long userId, Long traceId) throws UserNotHavePermissionException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
