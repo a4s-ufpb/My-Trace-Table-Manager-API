@@ -54,6 +54,12 @@ public class ThemeService {
         return theme.entityToResponse();
     }
 
+    public ThemeResponse findThemeByName(String themeName) {
+        Theme theme = themeRepository.findByNameEqualsIgnoreCase(themeName)
+                .orElseThrow(() -> new ThemeNotFoundException("Tema não encontrado!"));
+        return theme.entityToResponse();
+    }
+
     public Page<ThemeResponse> findThemesByUser(Pageable pageable, Long userId) {
         User creator = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));

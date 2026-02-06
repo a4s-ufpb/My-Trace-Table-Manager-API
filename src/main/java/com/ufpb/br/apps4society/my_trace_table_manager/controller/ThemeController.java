@@ -63,6 +63,16 @@ public class ThemeController {
                 return ResponseEntity.ok(themeService.findThemeById(themeId));
         }
 
+        @Operation(tags = "Theme", summary = "Find Theme By Name", responses = {
+                @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = ThemeResponse.class))),
+                @ApiResponse(description = "Not Found", responseCode = "404", content = @Content()),
+                @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content())
+        })
+        @GetMapping(value = "/name/{themeName}", produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<ThemeResponse> findThemeById(@PathVariable String themeName) {
+            return ResponseEntity.ok(themeService.findThemeByName(themeName));
+        }
+
         @Operation(tags = "Theme", summary = "Find Themes By User", responses = {
                         @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = ThemeResponse.class))),
                         @ApiResponse(description = "Not Found", responseCode = "404", content = @Content()),
