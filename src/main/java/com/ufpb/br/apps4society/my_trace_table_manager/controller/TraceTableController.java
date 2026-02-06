@@ -87,8 +87,10 @@ public class TraceTableController {
         @GetMapping(value = "/theme/name/{themeName}", produces = MediaType.APPLICATION_JSON_VALUE)
         public ResponseEntity<Page<TraceTableResponse>> findAllByThemeName(
                 @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-                @PathVariable String themeName) {
-            return ResponseEntity.ok(traceTableService.findAllByThemeName(pageable, themeName));
+                @PathVariable String themeName,
+                @RequestParam Long prof
+        ) {
+            return ResponseEntity.ok(traceTableService.findAllByThemeName(pageable, themeName, prof));
         }
 
         @Operation(tags = "Trace", summary = "Find All Trace Tables By Theme", responses = {
