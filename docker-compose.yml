@@ -11,6 +11,18 @@ services:
       - tracetable_db_data:/var/lib/postgresql/data
     networks:
       - tracetable-network
+  
+  pgadmin:
+    container_name: tracetable-pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@ufpb.br
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    networks:
+      - tracetable-network
 
   minio:
     container_name: tracetable-minio
