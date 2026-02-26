@@ -1,9 +1,6 @@
-version: '3.5'
-
 services:
-
   db:
-    container_name: container-database
+    container_name: tracetable-db
     image: postgres:16
     restart: always
     env_file:
@@ -11,12 +8,12 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - db_data:/app/data
+      - tracetable_db_data:/var/lib/postgresql/data
     networks:
-      - trace-network
+      - tracetable-network
 
   minio:
-    container_name: container-minio
+    container_name: tracetable-minio
     image: minio/minio:latest
     restart: always
     env_file:
@@ -25,13 +22,13 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - minio_data:/data
+      - tracetable_minio_data:/data
     command: server /data --console-address ":9001"
     networks:
-      - trace-network
+      - tracetable-network
 
   trace-api:
-    container_name: container-api
+    container_name: tracetable-api
     depends_on:
       - db
       - minio
@@ -44,14 +41,13 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - trace-network
+      - tracetable-network
 
 volumes:
-  db_data: {}
-  minio_data: {}
+  tracetable_db_data:
+  tracetable_minio_data:
 
 networks:
-  trace-network:
-    name: trace-network
+  tracetable-network:
+    name: tracetable-network
     driver: bridge
-    external: true

@@ -1,6 +1,6 @@
 spring:
     profiles:
-        active: ${APP_PROFILE:test}
+        active: ${APP_PROFILE:dev}
     output:
         ansi:
             enabled: always
@@ -19,7 +19,7 @@ springdoc:
 
 minio:
   url: ${MINIO_URL:http://localhost:9000}
-  access-key: ${MINIO_ACCESS_KEY}
-  secret-key: ${MINIO_SECRET_KEY}
-  bucket-name: ${MINIO_BUCKET_NAME}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  bucket-name: ${MINIO_BUCKET_NAME:a4s-bucket}
   public-url: ${MINIO_PUBLIC_URL:http://localhost:9000}
