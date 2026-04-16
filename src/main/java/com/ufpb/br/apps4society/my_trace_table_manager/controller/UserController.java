@@ -43,6 +43,19 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerUser(userRequest));
     }
 
+    @Operation(tags = "User", summary = "Register User", responses = {
+            @ApiResponse(description = "Success", responseCode = "201", content = @Content(schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content()),
+            @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
+            @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
+    })
+    @PostMapping(value = "/regAlun", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserResponse> registerAluno(@RequestBody @Valid UserRequest userRequest)
+            throws UserAlreadyExistsException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerUser(userRequest));
+    }
+
+
     @Operation(tags = "User", summary = "Login User", responses = {
             @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = TokenResponse.class))),
             @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content()),

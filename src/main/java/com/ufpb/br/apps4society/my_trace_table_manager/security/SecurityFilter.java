@@ -53,7 +53,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     }
 
     private boolean isPublicRoute(String method, String path) {
-        return
+        return (method.equals("POST") && path.equals("/v1/user/regAlun")) ||
             (method.equals("GET") && path.equals("/v1/user/all")) ||
             (method.equals("POST") && path.equals("/v1/user/login")) ||
             (method.equals("GET") && path.startsWith("/v1/theme")) ||

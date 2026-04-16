@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum Role {
     ADMIN("admin"),
-    USER("user");
+    USER("user"),
+    ALUNO("aluno"),
+    PROFESSOR("professor");
 
     private String role;
 
