@@ -85,7 +85,7 @@ public class UserService {
         Page<User> users;
 
         if (name.isBlank()) {
-            users = userRepository.findAll(pageable);
+            users = userRepository.findAllProfessors(pageable);
         } else {
             users = userRepository.findByNameStartsWithIgnoreCase(name, pageable);
         }
