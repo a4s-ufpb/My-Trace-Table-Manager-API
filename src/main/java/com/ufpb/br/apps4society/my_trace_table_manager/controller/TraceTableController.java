@@ -1,10 +1,13 @@
 package com.ufpb.br.apps4society.my_trace_table_manager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ufpb.br.apps4society.my_trace_table_manager.dto.answer.AnswerResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.CellErrorResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableRequest;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableResponse;
+import com.ufpb.br.apps4society.my_trace_table_manager.entity.User;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.TraceTableService;
+import com.ufpb.br.apps4society.my_trace_table_manager.service.UserService;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotHavePermissionException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -31,9 +34,11 @@ import java.util.List;
 public class TraceTableController {
 
         private final TraceTableService traceTableService;
+        private final UserService userService;
 
-        public TraceTableController(TraceTableService traceTableService) {
+        public TraceTableController(TraceTableService traceTableService, UserService userService) {
                 this.traceTableService = traceTableService;
+                this.userService = userService;
         }
 
         @Operation(tags = "Trace", summary = "Register Trace Table", responses = {
@@ -148,4 +153,26 @@ public class TraceTableController {
                 traceTableService.checkUserAnswer(userTraceTable, traceId);
                 return ResponseEntity.ok().build();
         }
+
+        @PostMapping(value = "/submit/{traceId}", produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<Void> submitAnswer(
+                @PathVariable Long traceId,
+                @RequestHeader("Authorization") String token,
+                @RequestBody List<List<String>> userTraceTable) {
+                User user = userService.findUserByToken(token);
+                traceTableService.submitAnswer(userTraceTable, traceId, user.getId());
+
+                return ResponseEntity.ok().build();
+        }
+
+        @Operation(tags = "Trace", summary = "Get Answers By Exercise", responses = {
+                @ApiResponse(description = "Success", responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = AnswerResponse.class)))),
+                @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
+                @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
+        })
+        @GetMapping(value = "/answers/{traceId}", produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<List<AnswerResponse>> getAnswersByExercise(@PathVariable Long traceId) {
+                return ResponseEntity.ok(traceTableService.getAnswersByExercise(traceId));
+        }
+
 }

@@ -1,11 +1,10 @@
 package com.ufpb.br.apps4society.my_trace_table_manager.service;
 
+import com.ufpb.br.apps4society.my_trace_table_manager.dto.answer.AnswerResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.CellErrorResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableRequest;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableResponse;
-import com.ufpb.br.apps4society.my_trace_table_manager.entity.Theme;
-import com.ufpb.br.apps4society.my_trace_table_manager.entity.TraceTable;
-import com.ufpb.br.apps4society.my_trace_table_manager.entity.User;
+import com.ufpb.br.apps4society.my_trace_table_manager.entity.*;
 import com.ufpb.br.apps4society.my_trace_table_manager.repository.ThemeRepository;
 import com.ufpb.br.apps4society.my_trace_table_manager.repository.TraceTableRepository;
 import com.ufpb.br.apps4society.my_trace_table_manager.repository.UserRepository;
@@ -19,9 +18,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -34,13 +35,15 @@ public class TraceTableService {
     private final UserRepository userRepository;
     private final ThemeRepository themeRepository;
     private final MinioService minioService;
+    private final AnswerRepository answerRepository;
 
     public TraceTableService(TraceTableRepository traceTableRepository, UserRepository userRepository,
-            ThemeRepository themeRepository, MinioService minioService) {
+                             ThemeRepository themeRepository, MinioService minioService, AnswerRepository answerRepository) {
         this.traceTableRepository = traceTableRepository;
         this.userRepository = userRepository;
         this.themeRepository = themeRepository;
         this.minioService = minioService;
+        this.answerRepository = answerRepository;
     }
 
     public TraceTableResponse insertTraceTable(
@@ -114,6 +117,7 @@ public class TraceTableService {
         return traceTables.map(traceTable -> traceTable.entityToResponse(minioService));
     }
 
+    @Transactional
     public void removeTraceTable(Long userId, Long traceId) throws UserNotHavePermissionException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
@@ -132,6 +136,7 @@ public class TraceTableService {
                     e.getMessage());
         }
 
+        answerRepository.deleteByTraceTableId(traceId);
         traceTableRepository.delete(traceTable);
     }
 
@@ -236,5 +241,30 @@ public class TraceTableService {
         if (Objects.isNull(traceTable.programmingLanguage()) || traceTable.programmingLanguage().isBlank()) {
             throw new IllegalArgumentException("O campo programmingLanguage não pode ser vazio ou nulo");
         }
+    }
+
+    public void submitAnswer(List<List<String>> userTraceTable, Long traceId, Long userId) {
+        User student = userRepository.findById(userId).orElseThrow();
+        TraceTable traceTable = traceTableRepository.findById(traceId).orElseThrow();
+
+        Answer answer = new Answer();
+        answer.setStudent(student);
+        answer.setTraceTable(traceTable);
+        answer.setAnswerData(TableSerializationUtil.serializeTable(userTraceTable));
+        answer.setCreatedAt(Instant.now());
+
+        answerRepository.save(answer);
+    }
+
+    public List<AnswerResponse> getAnswersByExercise(Long traceId) {
+        List<Answer> answers = answerRepository.findByTraceTableId(traceId);
+
+        return answers.stream().map(a -> new AnswerResponse(
+                a.getId(),
+                a.getStudent().getName(),
+                a.getTraceTable().getExerciseName(),
+                TableSerializationUtil.deserializeTable(a.getAnswerData()),
+                a.getCreatedAt().toString()
+        )).toList();
     }
 }
