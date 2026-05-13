@@ -1,5 +1,6 @@
 package com.ufpb.br.apps4society.my_trace_table_manager.service;
 
+import com.ufpb.br.apps4society.my_trace_table_manager.dto.MetricsResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.answer.AnswerResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.CellErrorResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableRequest;
@@ -17,12 +18,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -251,13 +254,23 @@ public class TraceTableService {
         answer.setStudent(student);
         answer.setTraceTable(traceTable);
         answer.setAnswerData(TableSerializationUtil.serializeTable(userTraceTable));
-        answer.setCreatedAt(Instant.now());
+        answer.setCreatedAt(LocalDateTime.now().minusHours(3));
 
         answerRepository.save(answer);
     }
 
-    public List<AnswerResponse> getAnswersByExercise(Long traceId) {
-        List<Answer> answers = answerRepository.findByTraceTableId(traceId);
+    public List<AnswerResponse> getAnswersByExercise(
+            Long traceId,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
+    ) {
+        List<Answer> answers;
+
+        if (startDate != null && endDate != null) {
+            answers = answerRepository.findByTraceTableIdAndCreatedAtBetween(traceId, startDate, endDate);
+        } else {
+            answers = answerRepository.findByTraceTableId(traceId);
+        }
 
         return answers.stream().map(a -> new AnswerResponse(
                 a.getId(),
@@ -266,5 +279,39 @@ public class TraceTableService {
                 TableSerializationUtil.deserializeTable(a.getAnswerData()),
                 a.getCreatedAt().toString()
         )).toList();
+    }
+
+    public MetricsResponse getMetricsByExercise(
+            Long traceId,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
+    ) {
+        List<Answer> answers;
+
+        if (startDate != null && endDate != null) {
+            answers = answerRepository.findByTraceTableIdAndCreatedAtBetween(traceId, startDate, endDate);
+        } else {
+            answers = answerRepository.findByTraceTableId(traceId);
+        }
+
+        int totalSubmissions = answers.size();
+        int correctSubmissions = (int) answers.stream()
+                .filter(a -> {
+                    try {
+                        checkUserAnswer(TableSerializationUtil.deserializeTable(a.getAnswerData()), traceId);
+                        return true;
+                    } catch (TraceTableDetailedException e) {
+                        return false;
+                    }
+                })
+                .count();
+
+        int incorrectSubmissions = totalSubmissions - correctSubmissions;
+
+        double accuracy = totalSubmissions > 0 ? (double) correctSubmissions / totalSubmissions * 100 : 0.0;
+
+        double errorRate = totalSubmissions >0 ? (double) incorrectSubmissions / totalSubmissions * 100 : 0.0;
+
+        return new MetricsResponse(totalSubmissions, correctSubmissions, incorrectSubmissions, accuracy, errorRate);
     }
 }

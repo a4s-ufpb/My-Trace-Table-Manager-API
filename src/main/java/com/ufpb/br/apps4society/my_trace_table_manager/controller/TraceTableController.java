@@ -1,6 +1,7 @@
 package com.ufpb.br.apps4society.my_trace_table_manager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ufpb.br.apps4society.my_trace_table_manager.dto.MetricsResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.answer.AnswerResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.CellErrorResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableRequest;
@@ -20,12 +21,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -171,8 +175,19 @@ public class TraceTableController {
                 @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
         })
         @GetMapping(value = "/answers/{traceId}", produces = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<List<AnswerResponse>> getAnswersByExercise(@PathVariable Long traceId) {
-                return ResponseEntity.ok(traceTableService.getAnswersByExercise(traceId));
+        public ResponseEntity<List<AnswerResponse>> getAnswersByExercise(
+                @PathVariable Long traceId,
+                @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+                @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+                return ResponseEntity.ok(traceTableService.getAnswersByExercise(traceId, startDate, endDate));
         }
 
+        @GetMapping("/metrics/{traceId}")
+        public ResponseEntity<MetricsResponse> getMetrics(
+                @PathVariable Long traceId,
+                @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+                @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
+        ) {
+                return ResponseEntity.ok(traceTableService.getMetricsByExercise(traceId, startDate, endDate));
+        }
 }

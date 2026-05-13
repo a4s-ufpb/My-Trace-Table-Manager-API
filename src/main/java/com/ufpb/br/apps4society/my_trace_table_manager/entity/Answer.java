@@ -2,7 +2,7 @@ package com.ufpb.br.apps4society.my_trace_table_manager.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity(name = "tb_user_answer")
 @Data
@@ -22,5 +22,5 @@ public class Answer {
     @Column(columnDefinition = "TEXT")
     private String answerData;
 
-    private Instant createdAt = Instant.now();
+    private LocalDateTime createdAt;
 }
