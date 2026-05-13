@@ -1,7 +1,7 @@
 package com.ufpb.br.apps4society.my_trace_table_manager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ufpb.br.apps4society.my_trace_table_manager.dto.MetricsResponse;
+import com.ufpb.br.apps4society.my_trace_table_manager.dto.metric.MetricsResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.answer.AnswerResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.CellErrorResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableRequest;
@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -178,16 +177,18 @@ public class TraceTableController {
         public ResponseEntity<List<AnswerResponse>> getAnswersByExercise(
                 @PathVariable Long traceId,
                 @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-                @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
-                return ResponseEntity.ok(traceTableService.getAnswersByExercise(traceId, startDate, endDate));
+                @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+                @RequestParam(name = "studentName", required = false) String studentName) {
+                return ResponseEntity.ok(traceTableService.getAnswersByExercise(traceId, startDate, endDate, studentName));
         }
 
         @GetMapping("/metrics/{traceId}")
         public ResponseEntity<MetricsResponse> getMetrics(
                 @PathVariable Long traceId,
                 @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-                @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
+                @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+                @RequestParam(name = "studentName", required = false) String studentName
         ) {
-                return ResponseEntity.ok(traceTableService.getMetricsByExercise(traceId, startDate, endDate));
+                return ResponseEntity.ok(traceTableService.getMetricsByExercise(traceId, startDate, endDate, studentName));
         }
 }

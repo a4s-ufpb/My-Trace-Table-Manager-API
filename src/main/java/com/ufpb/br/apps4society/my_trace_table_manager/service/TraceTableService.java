@@ -1,11 +1,12 @@
 package com.ufpb.br.apps4society.my_trace_table_manager.service;
 
-import com.ufpb.br.apps4society.my_trace_table_manager.dto.MetricsResponse;
+import com.ufpb.br.apps4society.my_trace_table_manager.dto.metric.MetricsResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.answer.AnswerResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.CellErrorResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableRequest;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.entity.*;
+import com.ufpb.br.apps4society.my_trace_table_manager.repository.AnswerRepository;
 import com.ufpb.br.apps4society.my_trace_table_manager.repository.ThemeRepository;
 import com.ufpb.br.apps4society.my_trace_table_manager.repository.TraceTableRepository;
 import com.ufpb.br.apps4society.my_trace_table_manager.repository.UserRepository;
@@ -25,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -262,13 +262,18 @@ public class TraceTableService {
     public List<AnswerResponse> getAnswersByExercise(
             Long traceId,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            String studentName
     ) {
         List<Answer> answers;
 
-        if (startDate != null && endDate != null) {
+        if (startDate != null && endDate != null && studentName != null && !studentName.isEmpty()) {
+            answers = answerRepository.findByTraceTableIdAndCreatedAtBetweenAndStudentNameIgnoreCase(traceId, startDate, endDate, studentName);
+        } else if (startDate != null && endDate != null) {
             answers = answerRepository.findByTraceTableIdAndCreatedAtBetween(traceId, startDate, endDate);
-        } else {
+        } else if (studentName != null && !studentName.isEmpty()) {
+            answers = answerRepository.findByStudentNameIgnoreCase(studentName);
+        }else {
             answers = answerRepository.findByTraceTableId(traceId);
         }
 
@@ -284,13 +289,18 @@ public class TraceTableService {
     public MetricsResponse getMetricsByExercise(
             Long traceId,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            String studentName
     ) {
         List<Answer> answers;
 
-        if (startDate != null && endDate != null) {
+        if (startDate != null && endDate != null && studentName != null && !studentName.isEmpty()) {
+            answers = answerRepository.findByTraceTableIdAndCreatedAtBetweenAndStudentNameIgnoreCase(traceId, startDate, endDate, studentName);
+        } else if (startDate != null && endDate != null) {
             answers = answerRepository.findByTraceTableIdAndCreatedAtBetween(traceId, startDate, endDate);
-        } else {
+        } else if (studentName != null && !studentName.isEmpty()) {
+            answers = answerRepository.findByStudentNameIgnoreCase(studentName);
+        }else {
             answers = answerRepository.findByTraceTableId(traceId);
         }
 
