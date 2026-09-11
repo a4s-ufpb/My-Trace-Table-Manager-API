@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -50,9 +51,9 @@ public class UserController {
             @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
     })
     @PostMapping(value = "/regAlun", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserResponse> registerAluno(@RequestBody @Valid UserRequest userRequest)
+    public ResponseEntity<UserResponse> registerAluno(@RequestBody @Valid UserRequest userRequest, @RequestParam @NotBlank String code)
             throws UserAlreadyExistsException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerUser(userRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerUserWithCode(userRequest, code));
     }
 
 

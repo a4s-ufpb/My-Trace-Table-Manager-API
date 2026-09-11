@@ -43,6 +43,7 @@ public class SecurityConfig {
                     request.requestMatchers(HttpMethod.POST,"/v1/user/register").hasAuthority("ADMIN");
                     request.requestMatchers(HttpMethod.POST,"/v1/user/regAlun").permitAll();
                     request.requestMatchers(HttpMethod.POST, "/v1/user/login").permitAll();
+                    request.requestMatchers(HttpMethod.POST, "/v1/verification/**").permitAll();
                     request.requestMatchers(HttpMethod.GET, "/v1/user/all").permitAll();
                     request.requestMatchers(HttpMethod.GET, "/v1/theme/**").permitAll();
                     request.requestMatchers(HttpMethod.POST, "/v1/trace/check/**").permitAll();
