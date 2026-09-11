@@ -17,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class ThemeService {
     private final ThemeRepository themeRepository;
@@ -43,9 +45,11 @@ public class ThemeService {
         return theme.entityToResponse();
     }
 
-    public Page<ThemeResponse> findAllThemes(Pageable pageable) {
-        Page<Theme> themes = themeRepository.findAll(pageable);
-        return themes.map(Theme::entityToResponse);
+    public List<ThemeResponse> findAllThemes() {
+        List<Theme> themes = themeRepository.findAll();
+        return themes.stream()
+                .map(Theme::entityToResponse)
+                .toList();
     }
 
     public ThemeResponse findThemeById(Long themeId) {
@@ -60,12 +64,14 @@ public class ThemeService {
         return theme.entityToResponse();
     }
 
-    public Page<ThemeResponse> findThemesByUser(Pageable pageable, Long userId) {
+    public List<ThemeResponse> findThemesByUser(Long userId) {
         User creator = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
-        Page<Theme> themes = themeRepository.findByCreator(pageable, creator);
-        return themes.map(Theme::entityToResponse);
+        List<Theme> themes = themeRepository.findByCreator(creator);
+        return themes.stream()
+                .map(Theme::entityToResponse)
+                .toList();
     }
 
     public Page<ThemeResponse> findAllThemesByTraceTable(Pageable pageable, Long traceTableId) {

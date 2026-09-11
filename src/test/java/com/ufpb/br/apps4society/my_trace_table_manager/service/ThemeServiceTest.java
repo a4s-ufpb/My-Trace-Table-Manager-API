@@ -112,13 +112,11 @@ public class ThemeServiceTest {
 
     @Test
     void findAllThemesSuccess() {
-        Pageable pageable = PageRequest.of(0, 10);
-
         Theme mockTheme1 = mock(Theme.class);
         Theme mockTheme2 = mock(Theme.class);
-        Page<Theme> mockPage = new PageImpl<>(List.of(mockTheme1, mockTheme2), pageable, 2);
+        List<Theme> mockPage = List.of(mockTheme1, mockTheme2);
 
-        when(themeRepository.findAll(pageable)).thenReturn(mockPage);
+        when(themeRepository.findAll()).thenReturn(mockPage);
 
         ThemeResponse mockThemeResponse1 = mock(ThemeResponse.class);
         ThemeResponse mockThemeResponse2 = mock(ThemeResponse.class);
@@ -126,14 +124,14 @@ public class ThemeServiceTest {
         when(mockTheme1.entityToResponse()).thenReturn(mockThemeResponse1);
         when(mockTheme2.entityToResponse()).thenReturn(mockThemeResponse2);
 
-        Page<ThemeResponse> resultPage = themeService.findAllThemes(pageable);
+        List<ThemeResponse> themes = themeService.findAllThemes();
 
-        assertNotNull(resultPage);
-        assertEquals(2, resultPage.getTotalElements());
-        assertEquals(mockThemeResponse1, resultPage.getContent().get(0));
-        assertEquals(mockThemeResponse2, resultPage.getContent().get(1));
+        assertNotNull(themes);
+        assertEquals(2, themes.size());
+        assertEquals(mockThemeResponse1, themes.get(0));
+        assertEquals(mockThemeResponse2, themes.get(1));
 
-        verify(themeRepository, times(1)).findAll(pageable);
+        verify(themeRepository, times(1)).findAll();
         verify(mockTheme1, times(1)).entityToResponse();
         verify(mockTheme2, times(1)).entityToResponse();
     }
@@ -147,20 +145,20 @@ public class ThemeServiceTest {
         ThemeResponse mockThemeResponse = mock(ThemeResponse.class);
 
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Theme> mockPage = new PageImpl<>(List.of(mockTheme), pageable, 1);
+        List<Theme> mockPage = List.of(mockTheme);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-        when(themeRepository.findByCreator(pageable, mockUser)).thenReturn(mockPage);
+        when(themeRepository.findByCreator(mockUser)).thenReturn(mockPage);
         when(mockTheme.entityToResponse()).thenReturn(mockThemeResponse);
 
-        Page<ThemeResponse> result = themeService.findThemesByUser(pageable, userId);
+        List<ThemeResponse> result = themeService.findThemesByUser(userId);
 
         assertNotNull(result);
-        assertEquals(1, result.getTotalElements());
-        assertEquals(mockThemeResponse, result.getContent().get(0));
+        assertEquals(1, result.size());
+        assertEquals(mockThemeResponse, result.get(0));
 
         verify(userRepository, times(1)).findById(userId);
-        verify(themeRepository, times(1)).findByCreator(pageable, mockUser);
+        verify(themeRepository, times(1)).findByCreator(mockUser);
         verify(mockTheme, times(1)).entityToResponse();
     }
 
@@ -169,10 +167,9 @@ public class ThemeServiceTest {
         Long userId = 1L;
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        Pageable pageable = PageRequest.of(0, 10);
 
         UserNotFoundException userNotFoundException = assertThrows(UserNotFoundException.class, () -> {
-            themeService.findThemesByUser(pageable, userId);
+            themeService.findThemesByUser(userId);
         });
 
         assertEquals("Usuário não encontrado", userNotFoundException.getMessage());

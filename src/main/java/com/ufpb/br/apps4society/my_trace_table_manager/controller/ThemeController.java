@@ -18,6 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/theme")
 @Tag(name = "Theme", description = "Theme of Trace Table")
@@ -48,9 +50,8 @@ public class ThemeController {
                         @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
         })
         @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<Page<ThemeResponse>> findAllThemes(
-                        @PageableDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
-                return ResponseEntity.ok(themeService.findAllThemes(pageable));
+        public ResponseEntity<List<ThemeResponse>> findAllThemes() {
+                return ResponseEntity.ok(themeService.findAllThemes());
         }
 
         @Operation(tags = "Theme", summary = "Find Theme By Id", responses = {
@@ -79,10 +80,9 @@ public class ThemeController {
                         @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content())
         })
         @GetMapping(value = "/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<Page<ThemeResponse>> findThemesByUser(
-                        @PageableDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
+        public ResponseEntity<List<ThemeResponse>> findThemesByUser(
                         @PathVariable Long userId) {
-                return ResponseEntity.ok(themeService.findThemesByUser(pageable, userId));
+                return ResponseEntity.ok(themeService.findThemesByUser(userId));
         }
 
         @Operation(tags = "Theme", summary = "Find All Themes By Trace Table", responses = {
