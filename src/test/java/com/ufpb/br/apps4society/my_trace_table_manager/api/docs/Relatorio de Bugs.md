@@ -10,7 +10,7 @@
 | Período dos testes | 17/10/2026              |
 | Responsável        | Victor Kawe             |
 
-## BUG-001 — Escalação de privilégio ao atualizar usuário
+## BUG-001 — Aumento de privilégio por usuário comum
 
 **Resumo:**
 Um usuário comum consegue alterar a própria role para `ADMIN`, elevando seus privilégios sem autorização.
