@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,6 +44,19 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerUser(userRequest));
     }
 
+    @Operation(tags = "User", summary = "Register User", responses = {
+            @ApiResponse(description = "Success", responseCode = "201", content = @Content(schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content()),
+            @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
+            @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
+    })
+    @PostMapping(value = "/regAlun", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserResponse> registerAluno(@RequestBody @Valid UserRequest userRequest, @RequestParam @NotBlank String code)
+            throws UserAlreadyExistsException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerUserWithCode(userRequest, code));
+    }
+
+
     @Operation(tags = "User", summary = "Login User", responses = {
             @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = TokenResponse.class))),
             @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content()),
@@ -65,12 +79,12 @@ public class UserController {
         return ResponseEntity.ok(userService.findUser(token));
     }
 
-    @Operation(tags = "User", summary = "Find All Users", responses = {
+    @Operation(tags = "User", summary = "Find All Professors", responses = {
             @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = UserResponse.class))),
             @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
             @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
     })
-    @GetMapping(value = "/all")
+    @GetMapping(value = "/allProfessors")
     public ResponseEntity<Page<UserResponse>> findAllUsers(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "12") Integer size,

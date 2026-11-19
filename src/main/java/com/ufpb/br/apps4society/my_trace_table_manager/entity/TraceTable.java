@@ -41,10 +41,10 @@ public class TraceTable implements Serializable {
     @Column(columnDefinition = "TEXT")
     private String typeTable;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     private User creator;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany
     @JoinTable(name = "trace_table_theme", joinColumns = @JoinColumn(name = "trace_table_id"), inverseJoinColumns = @JoinColumn(name = "theme_id"))
     private List<Theme> themes = new ArrayList<>();
 

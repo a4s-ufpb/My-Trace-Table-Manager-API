@@ -1,10 +1,14 @@
 package com.ufpb.br.apps4society.my_trace_table_manager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ufpb.br.apps4society.my_trace_table_manager.dto.metric.MetricsResponse;
+import com.ufpb.br.apps4society.my_trace_table_manager.dto.answer.AnswerResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.CellErrorResponse;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableRequest;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.tracetable.TraceTableResponse;
+import com.ufpb.br.apps4society.my_trace_table_manager.entity.User;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.TraceTableService;
+import com.ufpb.br.apps4society.my_trace_table_manager.service.UserService;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotHavePermissionException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -17,12 +21,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -31,9 +38,11 @@ import java.util.List;
 public class TraceTableController {
 
         private final TraceTableService traceTableService;
+        private final UserService userService;
 
-        public TraceTableController(TraceTableService traceTableService) {
+        public TraceTableController(TraceTableService traceTableService, UserService userService) {
                 this.traceTableService = traceTableService;
+                this.userService = userService;
         }
 
         @Operation(tags = "Trace", summary = "Register Trace Table", responses = {
@@ -47,14 +56,16 @@ public class TraceTableController {
                         @RequestPart("traceTableRequest") String traceTableRequestJson,
                         @RequestPart("image") MultipartFile image,
                         @PathVariable Long userId,
-                        @RequestParam List<Long> themesIds) throws IOException {
+                        @RequestParam List<Long> themesIds,
+                        @AuthenticationPrincipal User user
+        ) throws IOException, UserNotHavePermissionException {
 
                 ObjectMapper objectMapper = new ObjectMapper();
                 TraceTableRequest traceTableRequest = objectMapper.readValue(traceTableRequestJson,
                                 TraceTableRequest.class);
 
                 return ResponseEntity.status(201)
-                                .body(traceTableService.insertTraceTable(traceTableRequest, image, userId, themesIds));
+                                .body(traceTableService.insertTraceTable(traceTableRequest, image, userId, themesIds, user));
         }
 
         @Operation(tags = "Trace", summary = "Find Trace Table By ID", responses = {
@@ -79,6 +90,20 @@ public class TraceTableController {
                 return ResponseEntity.ok(traceTableService.findAllByUser(pageable, userId));
         }
 
+        @Operation(tags = "Trace", summary = "Find All Trace Tables By Theme Name", responses = {
+                @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = TraceTableResponse.class))),
+                @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
+                @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
+        })
+        @GetMapping(value = "/theme/name/{themeName}", produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<Page<TraceTableResponse>> findAllByThemeName(
+                @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                @PathVariable String themeName,
+                @RequestParam Long prof
+        ) {
+            return ResponseEntity.ok(traceTableService.findAllByThemeName(pageable, themeName, prof));
+        }
+
         @Operation(tags = "Trace", summary = "Find All Trace Tables By Theme", responses = {
                         @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = TraceTableResponse.class))),
                         @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
@@ -100,8 +125,9 @@ public class TraceTableController {
         @DeleteMapping("/{traceId}/{userId}")
         public ResponseEntity<Void> removeTraceTable(
                         @PathVariable Long traceId,
-                        @PathVariable Long userId) throws UserNotHavePermissionException {
-                traceTableService.removeTraceTable(userId, traceId);
+                        @PathVariable Long userId,
+                        @AuthenticationPrincipal User loggedUSer) throws UserNotHavePermissionException {
+                traceTableService.removeTraceTable(userId, traceId, loggedUSer);
                 return ResponseEntity.noContent().build();
         }
 
@@ -117,9 +143,10 @@ public class TraceTableController {
                         @RequestBody @Valid TraceTableRequest traceTableRequest,
                         @PathVariable Long traceId,
                         @PathVariable Long userId,
-                        @RequestParam List<Long> themesIds) throws UserNotHavePermissionException {
+                        @RequestParam List<Long> themesIds,
+                        @AuthenticationPrincipal User loggedUser) throws UserNotHavePermissionException {
                 return ResponseEntity
-                                .ok(traceTableService.updateTraceTable(traceTableRequest, traceId, userId, themesIds));
+                                .ok(traceTableService.updateTraceTable(traceTableRequest, traceId, userId, themesIds, loggedUser));
         }
 
         @Operation(tags = "Trace", summary = "Check User Answer", responses = {
@@ -133,5 +160,40 @@ public class TraceTableController {
                         @RequestBody List<List<String>> userTraceTable) {
                 traceTableService.checkUserAnswer(userTraceTable, traceId);
                 return ResponseEntity.ok().build();
+        }
+
+        @PostMapping(value = "/submit/{traceId}", produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<Void> submitAnswer(
+                @PathVariable Long traceId,
+                @RequestHeader("Authorization") String token,
+                @RequestBody List<List<String>> userTraceTable) {
+                User user = userService.findUserByToken(token);
+                traceTableService.submitAnswer(userTraceTable, traceId, user.getId());
+
+                return ResponseEntity.ok().build();
+        }
+
+        @Operation(tags = "Trace", summary = "Get Answers By Exercise", responses = {
+                @ApiResponse(description = "Success", responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = AnswerResponse.class)))),
+                @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content()),
+                @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
+        })
+        @GetMapping(value = "/answers/{traceId}", produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<List<AnswerResponse>> getAnswersByExercise(
+                @PathVariable Long traceId,
+                @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+                @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+                @RequestParam(name = "studentName", required = false) String studentName) {
+                return ResponseEntity.ok(traceTableService.getAnswersByExercise(traceId, startDate, endDate, studentName));
+        }
+
+        @GetMapping("/metrics/{traceId}")
+        public ResponseEntity<MetricsResponse> getMetrics(
+                @PathVariable Long traceId,
+                @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+                @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+                @RequestParam(name = "studentName", required = false) String studentName
+        ) {
+                return ResponseEntity.ok(traceTableService.getMetricsByExercise(traceId, startDate, endDate, studentName));
         }
 }
