@@ -35,7 +35,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ secrets.GHCR_USER }}/ideal_game_service:${{ steps.vars.outputs.tag }}
+          tags: ghcr.io/${{ secrets.GHCR_USER }}/my-trace-table-image:${{ steps.vars.outputs.tag }}
 
   # deploy:
   #   needs: build
