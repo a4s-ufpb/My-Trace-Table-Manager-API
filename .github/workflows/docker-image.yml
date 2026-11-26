@@ -1,40 +1,51 @@
-name: Docker Image CI
+name: Build and Deploy
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: [main, master, dev]
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
+    outputs:
+      tag: ${{ steps.vars.outputs.tag }}
     steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USER }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Define image tag
+        id: vars
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "dev" ]; then
+            echo "tag=dev" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+          fi
 
-    - name: Login no GHCR
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ secrets.GHCR_USER }}
-        password: ${{ secrets.GHCR_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ secrets.GHCR_USER }}/ideal_game_service:${{ steps.vars.outputs.tag }}
 
-    - name: Build e push da imagem Docker
-      uses: docker/build-push-action@v2
-      with:
-        push: true
-        tags: |
-          ghcr.io/a4s-ufpb/my-trace-table-manager-api:latest
-        cache-from: type=registry,ref=ghcr.io/a4s-ufpb/ghcr.io/a4s-ufpb/my-trace-table-manager-api:latest
-        cache-to: type=inline
-
-    - name: Callback portainer webhook
-      uses: muinmomin/webhook-action@v1.0.0
-      with:
-        url: ${{ secrets.PORTAINER_WEBHOOK }}
+  # deploy:
+  #   needs: build
+  #   # dev -> runner "teste" | main/master -> runner "producao"
+  #   runs-on: ${{ fromJSON(github.ref_name == 'dev' && '["self-hosted","teste"]' || '["self-hosted","producao"]') }}
+  #   environment: ${{ github.ref_name == 'dev' && 'teste' || 'producao' }}
+  #   steps:
+  #     - name: Pull e restart do serviço
+  #       run: |
+  #         echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USER }}" --password-stdin
+  #         docker pull ghcr.io/${{ secrets.GHCR_USER }}/ideal_game_service:${{ needs.build.outputs.tag }}
+  #         # exemplo: docker compose -f /caminho/docker-compose.yml up -d
+  #         docker logout ghcr.io
