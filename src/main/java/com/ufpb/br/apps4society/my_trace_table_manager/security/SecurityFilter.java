@@ -32,7 +32,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
-        if (isPublicRoute(path, method)) {
+        if (isPublicRoute(method, path)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -53,10 +53,10 @@ public class SecurityFilter extends OncePerRequestFilter {
     }
 
     private boolean isPublicRoute(String method, String path) {
-        return
+        return (method.equals("POST") && path.equals("/v1/user/regAlun")) ||
+            (method.equals("POST") && path.startsWith("/v1/verification/")) ||
             (method.equals("GET") && path.equals("/v1/user/all")) ||
             (method.equals("POST") && path.equals("/v1/user/login")) ||
-            (method.equals("GET") && path.startsWith("/v1/theme")) ||
             (method.equals("POST") && path.startsWith("/v1/trace/check")) ||
             (method.equals("GET") && path.startsWith("/v1/trace")) ||
             path.startsWith("/v3/api-docs") ||

@@ -46,8 +46,14 @@ public class User implements Serializable, UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (role == Role.USER) return List.of(new SimpleGrantedAuthority("USER"));
-        else return List.of(new SimpleGrantedAuthority("USER"), new SimpleGrantedAuthority("ADMIN"));
+        if (role == Role.ADMIN) {
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_USER"),
+                    new SimpleGrantedAuthority("ROLE_ADMIN")
+            );
+        }
+
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override
@@ -92,7 +98,7 @@ public class User implements Serializable, UserDetails {
         return new UserResponse(id,name,email,role.getRole());
     }
 
-    public boolean userNotHavePermission(User user){
-        return !this.equals(user) && this.getRole() == Role.USER;
+    public boolean userHavePermission(User user){
+        return !(this.equals(user) || this.getRole() == Role.ADMIN);
     }
 }

@@ -20,7 +20,7 @@ public class Theme implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     private User creator;
 
     @ManyToMany(mappedBy = "themes")

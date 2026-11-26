@@ -2,6 +2,7 @@ package com.ufpb.br.apps4society.my_trace_table_manager.controller;
 
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.theme.ThemeRequest;
 import com.ufpb.br.apps4society.my_trace_table_manager.dto.theme.ThemeResponse;
+import com.ufpb.br.apps4society.my_trace_table_manager.entity.User;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.ThemeService;
 import com.ufpb.br.apps4society.my_trace_table_manager.service.exception.UserNotHavePermissionException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,7 +17,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/theme")
@@ -38,8 +42,10 @@ public class ThemeController {
         @PostMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
         public ResponseEntity<ThemeResponse> insertTheme(
                         @RequestBody @Valid ThemeRequest themeRequest,
-                        @PathVariable Long userId) {
-                return ResponseEntity.status(201).body(themeService.insertTheme(themeRequest, userId));
+                        @PathVariable Long userId,
+                        @AuthenticationPrincipal User user
+        ) throws UserNotHavePermissionException {
+                return ResponseEntity.status(201).body(themeService.insertTheme(themeRequest, userId, user.getId()));
         }
 
         @Operation(tags = "Theme", summary = "Find All Themes", responses = {
@@ -48,9 +54,8 @@ public class ThemeController {
                         @ApiResponse(description = "Unauthorized", responseCode = "403", content = @Content())
         })
         @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<Page<ThemeResponse>> findAllThemes(
-                        @PageableDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
-                return ResponseEntity.ok(themeService.findAllThemes(pageable));
+        public ResponseEntity<List<ThemeResponse>> findAllThemes() {
+                return ResponseEntity.ok(themeService.findAllThemes());
         }
 
         @Operation(tags = "Theme", summary = "Find Theme By Id", responses = {
@@ -63,16 +68,25 @@ public class ThemeController {
                 return ResponseEntity.ok(themeService.findThemeById(themeId));
         }
 
+        @Operation(tags = "Theme", summary = "Find Theme By Name", responses = {
+                @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = ThemeResponse.class))),
+                @ApiResponse(description = "Not Found", responseCode = "404", content = @Content()),
+                @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content())
+        })
+        @GetMapping(value = "/name/{themeName}", produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<ThemeResponse> findThemeById(@PathVariable String themeName) {
+            return ResponseEntity.ok(themeService.findThemeByName(themeName));
+        }
+
         @Operation(tags = "Theme", summary = "Find Themes By User", responses = {
                         @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = ThemeResponse.class))),
                         @ApiResponse(description = "Not Found", responseCode = "404", content = @Content()),
                         @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content())
         })
         @GetMapping(value = "/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<Page<ThemeResponse>> findThemesByUser(
-                        @PageableDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
+        public ResponseEntity<List<ThemeResponse>> findThemesByUser(
                         @PathVariable Long userId) {
-                return ResponseEntity.ok(themeService.findThemesByUser(pageable, userId));
+                return ResponseEntity.ok(themeService.findThemesByUser(userId));
         }
 
         @Operation(tags = "Theme", summary = "Find All Themes By Trace Table", responses = {
@@ -96,8 +110,10 @@ public class ThemeController {
         @DeleteMapping("/{themeId}/{userId}")
         public ResponseEntity<Void> removeTheme(
                         @PathVariable Long themeId,
-                        @PathVariable Long userId) throws UserNotHavePermissionException {
-                themeService.removeTheme(themeId, userId);
+                        @PathVariable Long userId,
+                        @AuthenticationPrincipal User loggedUser
+        ) throws UserNotHavePermissionException {
+                themeService.removeTheme(themeId, userId, loggedUser);
                 return ResponseEntity.noContent().build();
         }
 
@@ -112,7 +128,8 @@ public class ThemeController {
         public ResponseEntity<ThemeResponse> updateTheme(
                         @RequestBody @Valid ThemeRequest themeRequest,
                         @PathVariable Long themeId,
-                        @PathVariable Long userId) throws UserNotHavePermissionException {
-                return ResponseEntity.ok(themeService.updateTheme(themeRequest, themeId, userId));
+                        @PathVariable Long userId,
+                        @AuthenticationPrincipal User loggedUser) throws UserNotHavePermissionException {
+                return ResponseEntity.ok(themeService.updateTheme(themeRequest, themeId, userId, loggedUser));
         }
 }

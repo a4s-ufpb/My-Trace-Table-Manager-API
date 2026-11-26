@@ -154,7 +154,7 @@ public class UserServiceTest {
         when(userRepository.findById(123L)).thenReturn(Optional.of(loggedUser));
         when(userRepository.findById(userIdToRemove)).thenReturn(Optional.of(userToRemove));
 
-        when(loggedUser.userNotHavePermission(userToRemove)).thenReturn(false);
+        when(loggedUser.userHavePermission(userToRemove)).thenReturn(false);
 
         doNothing().when(userRepository).delete(userToRemove);
 
@@ -177,7 +177,7 @@ public class UserServiceTest {
         when(userRepository.findById(123L)).thenReturn(Optional.of(loggedUser));
         when(userRepository.findById(userIdToRemove)).thenReturn(Optional.of(userToRemove));
 
-        when(loggedUser.userNotHavePermission(userToRemove)).thenReturn(true);
+        when(loggedUser.userHavePermission(userToRemove)).thenReturn(true);
 
         UserNotHavePermissionException exception = assertThrows(
                 UserNotHavePermissionException.class,
@@ -247,7 +247,7 @@ public class UserServiceTest {
         doReturn(loggedUser).when(spyUserService).findUserByToken(token);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(userToUpdate));
-        when(loggedUser.userNotHavePermission(userToUpdate)).thenReturn(false);
+        when(loggedUser.userHavePermission(userToUpdate)).thenReturn(false);
 
         when(userUpdate.name()).thenReturn("Novo Nome");
         when(userUpdate.email()).thenReturn("novoemail@example.com");
@@ -311,7 +311,7 @@ public class UserServiceTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(userToUpdate));
 
-        when(loggedUser.userNotHavePermission(userToUpdate)).thenReturn(true);
+        when(loggedUser.userHavePermission(userToUpdate)).thenReturn(true);
 
         UserNotHavePermissionException exception = assertThrows(
                 UserNotHavePermissionException.class,
@@ -321,7 +321,7 @@ public class UserServiceTest {
 
         verify(spyUserService).findUserByToken(token);
         verify(userRepository).findById(userId);
-        verify(loggedUser).userNotHavePermission(userToUpdate);
+        verify(loggedUser).userHavePermission(userToUpdate);
 
         verify(userRepository, never()).save(any());
     }
@@ -363,7 +363,7 @@ public class UserServiceTest {
         doReturn(loggedUser).when(spyUserService).findUserByToken(token);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        when(loggedUser.userNotHavePermission(user)).thenReturn(false);
+        when(loggedUser.userHavePermission(user)).thenReturn(false);
 
         when(loggedUser.getRole()).thenReturn(Role.ADMIN);
 
@@ -374,7 +374,7 @@ public class UserServiceTest {
 
         verify(spyUserService).findUserByToken(token);
         verify(userRepository).findById(userId);
-        verify(loggedUser).userNotHavePermission(user);
+        verify(loggedUser).userHavePermission(user);
         verify(loggedUser).getRole();
     }
 
@@ -391,7 +391,7 @@ public class UserServiceTest {
         doReturn(loggedUser).when(spyUserService).findUserByToken(token);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        when(loggedUser.userNotHavePermission(user)).thenReturn(true);
+        when(loggedUser.userHavePermission(user)).thenReturn(true);
 
         UserNotHavePermissionException exception = assertThrows(
                 UserNotHavePermissionException.class,
@@ -401,7 +401,7 @@ public class UserServiceTest {
 
         verify(spyUserService).findUserByToken(token);
         verify(userRepository).findById(userId);
-        verify(loggedUser).userNotHavePermission(user);
+        verify(loggedUser).userHavePermission(user);
     }
 
 }
